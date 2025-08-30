@@ -16,7 +16,7 @@
   "dependencies": {
     "@boxyhq/saml20": "1.10.2",
     "daisyui": "4.12.24",
-    "next": "15.3.5",
+    "next": "15.5.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-gtm-module": "2.0.11"
@@ -28,7 +28,7 @@
     "@typescript-eslint/parser": "8.33.0",
     "autoprefixer": "10.4.21",
     "eslint": "9.26.0",
-    "eslint-config-next": "15.3.5",
+    "eslint-config-next": "15.5.2",
     "json": "11.0.0",
     "postcss": "8.5.3",
     "prettier": "3.5.3",
