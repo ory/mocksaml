@@ -16,26 +16,26 @@
   "dependencies": {
     "@boxyhq/saml20": "1.12.1",
     "daisyui": "4.12.24",
-    "next": "15.5.3",
-    "react": "19.1.1",
-    "react-dom": "19.1.1",
+    "next": "15.5.4",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
     "react-gtm-module": "2.0.11"
   },
   "devDependencies": {
-    "@types/node": "22.15.28",
-    "@types/react": "19.1.12",
+    "@types/node": "24.7.1",
+    "@types/react": "19.2.2",
     "@types/react-gtm-module": "2.0.4",
-    "@typescript-eslint/parser": "8.33.0",
+    "@typescript-eslint/parser": "8.46.0",
     "autoprefixer": "10.4.21",
-    "eslint": "9.35.0",
-    "eslint-config-next": "15.5.3",
+    "eslint": "9.37.0",
+    "eslint-config-next": "15.5.4",
     "json": "11.0.0",
     "postcss": "8.5.6",
     "prettier": "3.6.2",
     "prettier-plugin-tailwindcss": "0.6.14",
-    "release-it": "19.0.4",
+    "release-it": "19.0.5",
     "tailwindcss": "3.4.17",
-    "typescript": "^5.8.3"
+    "typescript": "5.9.3"
   },
   "engines": {
     "node": ">=18.14.0"
