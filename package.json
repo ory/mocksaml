@@ -36,7 +36,7 @@
     "prettier": "3.6.2",
     "prettier-plugin-tailwindcss": "0.7.1",
     "release-it": "19.0.6",
-    "tailwindcss": "3.4.17",
+    "tailwindcss": "4.1.17",
     "typescript": "5.9.3"
   },
   "engines": {
