@@ -8,7 +8,7 @@
     "dev": "next dev -p 4000",
     "build": "next build",
     "start": "next start -p 4000",
-    "lint": "next lint",
+    "lint": "eslint -c eslint.config.cjs ./",
     "check-format": "prettier --check .",
     "format": "prettier --write .",
     "release": "git checkout release && git merge origin/main && release-it && git checkout main && git merge origin/release && git push origin main"
@@ -16,19 +16,21 @@
   "dependencies": {
     "@boxyhq/saml20": "1.12.1",
     "daisyui": "4.12.24",
-    "next": "15.5.5",
+    "next": "16.0.3",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-gtm-module": "2.0.11"
   },
   "devDependencies": {
     "@types/node": "24.10.1",
-    "@types/react": "19.2.2",
+    "@types/react": "19.2.5",
     "@types/react-gtm-module": "2.0.4",
     "@typescript-eslint/parser": "8.46.4",
     "autoprefixer": "10.4.21",
     "eslint": "9.37.0",
-    "eslint-config-next": "15.5.5",
+    "eslint-config-next": "16.0.3",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-i18next": "6.1.3",
     "json": "11.0.0",
     "postcss": "8.5.6",
     "prettier": "3.6.2",
