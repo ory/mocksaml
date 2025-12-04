@@ -26,6 +26,8 @@ jobs:
       - run: |
           npm install
 
+          IMAGE_PATH=boxyhq/mock-saml
+          echo "IMAGE_PATH=${IMAGE_PATH}" >> $GITHUB_OUTPUT
           MOCK_SAML_VERSION=$(echo $(cat ./package.json) | ./node_modules/json/lib/json.js version)
           echo "NPMVERSION=$(echo ${MOCK_SAML_VERSION})" >> $GITHUB_OUTPUT
         id: npmversion
@@ -59,7 +61,7 @@ jobs:
           file: ./Dockerfile
           platforms: linux/amd64,linux/arm64
           push: ${{ github.ref == 'refs/heads/release' }}
-          tags: ${{ github.repository }}:latest,${{ github.repository }}:${{ steps.slug.outputs.SHA7 }},${{ github.repository }}:${{ steps.npmversion.outputs.NPMVERSION }}
+          tags: ${{ steps.npmversion.outputs.IMAGE_PATH }}:latest,${{ steps.npmversion.outputs.IMAGE_PATH }}:${{ steps.slug.outputs.SHA7 }},${{ steps.npmversion.outputs.IMAGE_PATH }}:${{ steps.npmversion.outputs.NPMVERSION }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
