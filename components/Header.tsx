@@ -33,7 +33,7 @@ export default function Header() {
           </span>
           <span>
             Made with <span className='text-red-500'>&#9829;</span>{' '}
-            <a href='https://ory.sh' rel='noopener noreferrer' target='_blank'>
+            <a href='https://ory.com' rel='noopener noreferrer' target='_blank'>
               <strong>Ory</strong>
             </a>
           </span>
