@@ -18,11 +18,7 @@ export default function Footer() {
         </a>
         <p className='mt-4 text-sm text-gray-500 sm:ml-4 sm:mt-0 sm:border-l-2 sm:border-gray-200 sm:py-2 sm:pl-4'>
           Powered by
-          <a
-            href='https://ory.sh'
-            className='ml-1 text-gray-600'
-            rel='noopener noreferrer'
-            target='_blank'>
+          <a href='https://ory.com' className='ml-1 text-gray-600' rel='noopener noreferrer' target='_blank'>
             <strong>Ory</strong>
           </a>
         </p>
