@@ -1,48 +1,67 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
-html,
-body {
-  padding: 0;
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell,
-    'Helvetica Neue', sans-serif;
-  height: 100%;
+@custom-variant dark (&:is(.dark *));
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
 }
 
-#__next {
-  height: 100%;
+@utility alert {
+  @apply rounded-sm;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+@utility input {
+  @apply rounded-sm;
 }
 
-* {
-  box-sizing: border-box;
+@utility textarea {
+  @apply rounded-sm;
 }
 
-@layer components {
-  .alert {
-    @apply rounded;
+@utility select {
+  @apply rounded-sm;
+}
+
+@utility btn {
+  @apply rounded-sm;
+  text-transform: none;
+}
+
+@layer utilities {
+  html,
+  body {
+    padding: 0;
+    margin: 0;
+    font-family:
+      -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans,
+      Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+    height: 100%;
   }
 
-  .input {
-    @apply rounded;
+  #__next {
+    height: 100%;
   }
 
-  .textarea {
-    @apply rounded;
+  a {
+    color: inherit;
+    text-decoration: none;
   }
 
-  .select {
-    @apply rounded;
-  }
-
-  .btn {
-    @apply rounded;
-    text-transform: none;
+  * {
+    box-sizing: border-box;
   }
 }
