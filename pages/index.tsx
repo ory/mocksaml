@@ -7,7 +7,6 @@ import { getEntityId, getSSOUrl } from 'lib/entity-id';
 
 const Home: React.FC<{ metadata: IdPMetadata; params: any }> = ({ metadata, params }) => {
   const namespace = params.namespace;
-
   const { ssoUrl: appUrl, entityId, certificate } = metadata;
   const namespaceEntityId = getEntityId(entityId, namespace);
 
@@ -29,43 +28,21 @@ const Home: React.FC<{ metadata: IdPMetadata; params: any }> = ({ metadata, para
           <div className='flex flex-col gap-3 md:flex-row'>
             <Link
               href={metadataDownloadUrl}
-              className='inline-flex items-center justify-center rounded-md
-                         bg-primary px-4 py-2 text-sm font-semibold text-white
-                         hover:bg-primary/90 focus:outline-none
-                         focus:ring-2 focus:ring-primary/40'>
-              <svg
-                className='mr-2 h-5 w-5'
-                fill='none'
-                viewBox='0 0 24 24'
-                stroke='currentColor'
-                strokeWidth='2'
-                aria-hidden>
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  d='M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4'
-                />
-              </svg>
+              className='inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400/40'>
               Download Metadata
             </Link>
 
             <Link
               href={metadataUrl}
               target='_blank'
-              className='inline-flex items-center justify-center rounded-md
-                         border border-primary px-4 py-2 text-sm font-semibold
-                         text-primary hover:bg-primary/10
-                         focus:outline-none focus:ring-2 focus:ring-primary/40'>
+              className='inline-flex items-center justify-center rounded-md border border-blue-600 px-4 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400/40'>
               Metadata URL
             </Link>
           </div>
 
           <Link
             href={loginUrl}
-            className='inline-flex items-center justify-center rounded-md
-                       border border-primary px-4 py-2 text-sm font-semibold
-                       text-primary hover:bg-primary/10
-                       focus:outline-none focus:ring-2 focus:ring-primary/40'>
+            className='inline-flex items-center justify-center rounded-md border border-blue-600 px-4 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400/40'>
             Test IdP Login
           </Link>
         </div>
@@ -73,37 +50,33 @@ const Home: React.FC<{ metadata: IdPMetadata; params: any }> = ({ metadata, para
         {/* Metadata Card */}
         <div className='rounded-lg border border-gray-200 bg-white p-4 shadow-sm'>
           <h2 className='mb-5 text-center text-2xl font-semibold text-gray-900'>Mock SAML Metadata</h2>
-
           <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
             <div>
-              <label className='mb-1 block text-sm font-medium text-gray-700'>SSO URL</label>
+              <label className='block mb-1 text-sm font-medium text-gray-700'>SSO URL</label>
               <input
                 type='text'
                 defaultValue={ssoUrl}
                 disabled
-                className='w-full rounded-md border border-gray-300
-                           bg-gray-100 px-3 py-2 text-sm text-gray-700'
+                className='w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 text-sm text-gray-700'
               />
             </div>
 
             <div>
-              <label className='mb-1 block text-sm font-medium text-gray-700'>Entity ID</label>
+              <label className='block mb-1 text-sm font-medium text-gray-700'>Entity ID</label>
               <input
                 type='text'
                 defaultValue={namespaceEntityId}
                 disabled
-                className='w-full rounded-md border border-gray-300
-                           bg-gray-100 px-3 py-2 text-sm text-gray-700'
+                className='w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 text-sm text-gray-700'
               />
             </div>
 
             <div className='md:col-span-2'>
-              <label className='mb-1 block text-sm font-medium text-gray-700'>Certificate</label>
+              <label className='block mb-1 text-sm font-medium text-gray-700'>Certificate</label>
               <textarea
                 defaultValue={certificate}
                 disabled
-                className='h-48 w-full rounded-md border border-gray-300
-                           bg-gray-100 px-3 py-2 text-sm font-mono text-gray-700'
+                className='h-48 w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 text-sm font-mono text-gray-700'
               />
             </div>
           </div>

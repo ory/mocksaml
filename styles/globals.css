@@ -1,3 +1,26 @@
-@import './theme.css';
-
+/* globals.css */
 @import 'tailwindcss';
+
+/* Tailwind base, components, utilities */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Optional body defaults */
+body {
+  background-color: white;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  color: #1f2937; /* Tailwind gray-900 default */
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+}
+
+/* Optional focus outline for accessibility */
+:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  ring-offset-width: 2px;
+}
+
+/* You can define custom colors directly in tailwind.config.js instead of here */
