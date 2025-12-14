@@ -28,21 +28,30 @@ const Home: React.FC<{ metadata: IdPMetadata; params: any }> = ({ metadata, para
           <div className='flex flex-col gap-3 md:flex-row'>
             <Link
               href={metadataDownloadUrl}
-              className='inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400/40'>
+              className='inline-flex items-center justify-center rounded-md
+             bg-primary px-4 py-2 text-sm font-semibold text-white
+             hover:bg-primary-hover
+             focus:outline-none focus:ring-2 focus:ring-primary-ring'>
               Download Metadata
             </Link>
 
             <Link
               href={metadataUrl}
               target='_blank'
-              className='inline-flex items-center justify-center rounded-md border border-blue-600 px-4 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400/40'>
+              className='inline-flex items-center justify-center rounded-md
+             border border-primary px-4 py-2 text-sm font-semibold
+             text-primary hover:bg-primary-soft
+             focus:outline-none focus:ring-2 focus:ring-primary-ring'>
               Metadata URL
             </Link>
           </div>
 
           <Link
             href={loginUrl}
-            className='inline-flex items-center justify-center rounded-md border border-blue-600 px-4 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400/40'>
+            className='inline-flex items-center justify-center rounded-md
+             border border-primary px-4 py-2 text-sm font-semibold
+             text-primary hover:bg-primary-soft
+             focus:outline-none focus:ring-2 focus:ring-primary-ring'>
             Test IdP Login
           </Link>
         </div>

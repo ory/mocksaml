@@ -6,6 +6,19 @@
 @tailwind components;
 @tailwind utilities;
 
+@theme {
+  /* Brand */
+  --color-primary: oklch(51.1% 0.262 276.966);
+  --color-primary-hover: oklch(47% 0.262 276.966);
+
+  /* Soft / UI surfaces */
+  --color-primary-soft: oklch(51.1% 0.262 276.966 / 0.1);
+  --color-primary-muted: oklch(51.1% 0.262 276.966 / 0.6);
+
+  /* Focus ring */
+  --color-primary-ring: oklch(51.1% 0.262 276.966 / 0.4);
+}
+
 /* Optional body defaults */
 body {
   background-color: white;

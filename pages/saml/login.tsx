@@ -69,7 +69,7 @@ export default function Login() {
       <div className='flex min-h-screen justify-center bg-white pt-12'>
         <div className='w-full max-w-xl px-3 space-y-4'>
           {/* Card */}
-          <div className='rounded-lg border border-gray-200 bg-white p-6 shadow-sm'>
+          <div className='rounded-lg border border-gray-200 bg-white p-4 shadow-sm'>
             <h2 className='mb-6 text-center text-2xl font-semibold text-gray-900'>
               {!acsUrl ? 'SAML IdP Login' : 'SAML SSO Login'}
             </h2>
@@ -89,7 +89,7 @@ export default function Login() {
                         value={state.acsUrl}
                         onChange={handleChange}
                         placeholder='https://sso.eu.boxyhq.com/api/oauth/saml'
-                        className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30'
+                        className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
                       />
                       <p className='mt-1 text-xs text-gray-500'>
                         This is where we will post the SAML Response
@@ -106,7 +106,7 @@ export default function Login() {
                         value={state.audience}
                         onChange={handleChange}
                         placeholder='https://saml.boxyhq.com'
-                        className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30'
+                        className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
                       />
                     </div>
                   </div>
@@ -123,7 +123,7 @@ export default function Login() {
                     value={state.username}
                     onChange={handleChange}
                     placeholder='jackson'
-                    className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30'
+                    className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
                   />
                 </div>
 
@@ -134,7 +134,7 @@ export default function Login() {
                     id='domain'
                     value={state.domain}
                     onChange={handleChange}
-                    className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30'>
+                    className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'>
                     <option value='example.com'>@example.com</option>
                     <option value='example.org'>@example.org</option>
                   </select>
@@ -147,14 +147,14 @@ export default function Login() {
                     type='password'
                     autoComplete='off'
                     defaultValue='samlstrongpassword'
-                    className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30'
+                    className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
                   />
                   <p className='mt-1 text-xs text-gray-500'>Any password works</p>
                 </div>
 
                 <button
                   type='submit'
-                  className='col-span-2 mt-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400/40'>
+                  className='col-span-2 mt-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary/40'>
                   Sign In
                 </button>
               </div>
