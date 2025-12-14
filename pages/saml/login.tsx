@@ -154,7 +154,7 @@ export default function Login() {
 
                   <button
                     type='submit'
-                    className='col-span-2 mt-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40'>
+                    className='col-span-2 mt-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary/40'>
                     Sign In
                   </button>
                 </div>
