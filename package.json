@@ -15,18 +15,17 @@
   },
   "dependencies": {
     "@boxyhq/saml20": "1.12.2",
-    "daisyui": "4.12.24",
     "next": "16.0.10",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-gtm-module": "2.0.11"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "4.1.18",
     "@types/node": "25.0.1",
     "@types/react": "19.2.7",
     "@types/react-gtm-module": "2.0.4",
     "@typescript-eslint/parser": "8.49.0",
-    "autoprefixer": "10.4.22",
     "eslint": "9.39.1",
     "eslint-config-next": "16.0.10",
     "eslint-config-prettier": "10.1.8",
@@ -36,7 +35,7 @@
     "prettier": "3.7.4",
     "prettier-plugin-tailwindcss": "0.7.2",
     "release-it": "19.1.0",
-    "tailwindcss": "3.4.17",
+    "tailwindcss": "4.1.17",
     "typescript": "5.9.3"
   },
   "engines": {

@@ -35,7 +35,7 @@ export default function Layout({ children }: LayoutProps) {
         <meta name='twitter:image' content={ogImage} />
       </Head>
       <Header />
-      <main className='h-[calc(100%_-_80px)] overflow-auto py-5'>{children}</main>
+      <main className='h-[calc(100%-80px)] overflow-auto py-5'>{children}</main>
     </>
   );
 }
