@@ -23,7 +23,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "4.1.18",
     "@types/node": "25.0.8",
-    "@types/react": "19.2.7",
+    "@types/react": "19.2.9",
     "@types/react-gtm-module": "2.0.4",
     "@typescript-eslint/parser": "8.50.1",
     "eslint": "9.39.2",
