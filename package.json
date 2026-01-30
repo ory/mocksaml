@@ -14,7 +14,7 @@
     "release": "git checkout release && git merge origin/main && release-it && git checkout main && git merge origin/release && git push origin main"
   },
   "dependencies": {
-    "@boxyhq/saml20": "1.12.2",
+    "@boxyhq/saml20": "1.13.0",
     "next": "16.1.5",
     "react": "19.2.3",
     "react-dom": "19.2.3",
