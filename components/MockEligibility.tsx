@@ -76,12 +76,15 @@ export default function MockEligibility(props: MockEligibilityProps) {
   });
 
   useEffect(() => {
-    setFormData({
+    const { fundingType, ...SSOFormDataWithoutFundingType } = SSOFormData;
+    const updatedFormData = {
       ...formData,
-      ...SSOFormData,
+      ...SSOFormDataWithoutFundingType,
       fundingTypeCd: SSOFormData.fundingType,
       underwritingStateCd: SSOFormData.stateCode,
-    });
+    };
+    setFormData(updatedFormData);
+    onDataChange?.(updatedFormData);
   }, [SSOFormData]);
 
   useEffect(() => {
