@@ -1,5 +1,3 @@
-import Home, { getServerSideProps as _getServerSideProps } from '../../index';
-
-export const getServerSideProps = _getServerSideProps;
+import Home from '../../index';
 
 export default Home;
