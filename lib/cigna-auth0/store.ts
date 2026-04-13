@@ -16,12 +16,20 @@ export interface RefreshTokenEntry {
   userId: string;
 }
 
-// In-memory stores. These persist across requests in Next.js standalone mode
-// (single long-running Node process). In dev mode (next dev), module hot-reload
-// may clear these — that's acceptable for a mock service.
-export const authCodes = new Map<string, AuthCodeEntry>();
-export const accessTokens = new Map<string, AccessTokenEntry>();
-export const refreshTokens = new Map<string, RefreshTokenEntry>();
+// In-memory stores. Use globalThis to survive Next.js dev-mode hot reloads.
+const g = globalThis as typeof globalThis & {
+  __mockAuthCodes?: Map<string, AuthCodeEntry>;
+  __mockAccessTokens?: Map<string, AccessTokenEntry>;
+  __mockRefreshTokens?: Map<string, RefreshTokenEntry>;
+};
+
+g.__mockAuthCodes ??= new Map<string, AuthCodeEntry>();
+g.__mockAccessTokens ??= new Map<string, AccessTokenEntry>();
+g.__mockRefreshTokens ??= new Map<string, RefreshTokenEntry>();
+
+export const authCodes = g.__mockAuthCodes;
+export const accessTokens = g.__mockAccessTokens;
+export const refreshTokens = g.__mockRefreshTokens;
 
 export function generateToken(prefix: string): string {
   return `mock-${prefix}-${crypto.randomBytes(16).toString('hex')}`;
