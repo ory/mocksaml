@@ -34,7 +34,7 @@
     "postcss": "8.5.9",
     "prettier": "3.8.2",
     "prettier-plugin-tailwindcss": "0.7.2",
-    "release-it": "19.2.4",
+    "release-it": "20.0.0",
     "tailwindcss": "4.2.2",
     "typescript": "6.0.2"
   },
