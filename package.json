@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@boxyhq/saml20": "1.15.1",
-    "next": "16.2.3",
+    "next": "16.2.4",
     "react": "19.2.5",
     "react-dom": "19.2.5",
     "react-gtm-module": "2.0.11"
@@ -27,7 +27,7 @@
     "@types/react-gtm-module": "2.0.4",
     "@typescript-eslint/parser": "8.58.2",
     "eslint": "10.2.0",
-    "eslint-config-next": "16.2.3",
+    "eslint-config-next": "16.2.4",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-i18next": "6.1.4",
     "json": "11.0.0",
