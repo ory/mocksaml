@@ -93,8 +93,9 @@ export default function Login({ defaultAttributes, defaultAudience }: Props) {
     }
   };
 
-  const inputClass =
-    'w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30';
+  const inputBase =
+    'rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30';
+  const inputClass = `w-full ${inputBase}`;
 
   return (
     <>
@@ -199,14 +200,14 @@ export default function Login({ defaultAttributes, defaultAudience }: Props) {
                         value={attr.name}
                         onChange={(e) => handleAttrChange(i, 'name', e.target.value)}
                         placeholder='name'
-                        className='w-2/5 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
+                        className={`w-2/5 ${inputBase}`}
                       />
                       <input
                         type='text'
                         value={attr.value}
                         onChange={(e) => handleAttrChange(i, 'value', e.target.value)}
                         placeholder='value'
-                        className='flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
+                        className={`flex-1 ${inputBase}`}
                       />
                       <button
                         type='button'
@@ -224,7 +225,7 @@ export default function Login({ defaultAttributes, defaultAudience }: Props) {
                       value={newAttr.name}
                       onChange={(e) => setNewAttr({ ...newAttr, name: e.target.value })}
                       placeholder='name'
-                      className='w-2/5 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
+                      className={`w-2/5 ${inputBase}`}
                     />
                     <input
                       type='text'
@@ -237,7 +238,7 @@ export default function Login({ defaultAttributes, defaultAudience }: Props) {
                           handleAttrAdd();
                         }
                       }}
-                      className='flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
+                      className={`flex-1 ${inputBase}`}
                     />
                     <button
                       type='button'
