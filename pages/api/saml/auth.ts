@@ -7,10 +7,10 @@ import { getEntityId } from 'lib/entity-id';
 
 function resolveTemplate(template: string, user: User): string {
   return template
-    .replace(/\{id\}/g, user.id)
-    .replace(/\{email\}/g, user.email)
-    .replace(/\{firstName\}/g, user.firstName)
-    .replace(/\{lastName\}/g, user.lastName);
+    .replace(/\{id\}/g, () => user.id)
+    .replace(/\{email\}/g, () => user.email)
+    .replace(/\{firstName\}/g, () => user.firstName)
+    .replace(/\{lastName\}/g, () => user.lastName);
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -34,8 +34,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const extraClaims: Record<string, string> = {};
     if (Array.isArray(attributes)) {
-      for (const { name, value } of attributes) {
-        if (name) extraClaims[name] = resolveTemplate(value ?? '', user);
+      for (const entry of attributes) {
+        if (!entry || typeof entry !== 'object') continue;
+        const { name, value } = entry as { name?: unknown; value?: unknown };
+        if (typeof name === 'string' && name)
+          extraClaims[name] = resolveTemplate(typeof value === 'string' ? value : '', user);
       }
     } else {
       for (const [name, template] of Object.entries(config.extraAttributes)) {

@@ -3,7 +3,6 @@ import { useRouter } from 'next/router';
 import type { GetServerSideProps } from 'next';
 import type { FormEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
-import config from 'lib/env';
 
 type Attribute = { key: number; name: string; value: string };
 
@@ -225,6 +224,12 @@ export default function Login({ defaultAttributes, defaultAudience }: Props) {
                       value={newAttr.name}
                       onChange={(e) => setNewAttr({ ...newAttr, name: e.target.value })}
                       placeholder='name'
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAttrAdd();
+                        }
+                      }}
                       className={`w-2/5 ${inputBase}`}
                     />
                     <input
@@ -274,6 +279,7 @@ export default function Login({ defaultAttributes, defaultAudience }: Props) {
 }
 
 export const getServerSideProps: GetServerSideProps<Props> = async () => {
+  const { default: config } = await import('lib/env');
   const defaultAttributes = Object.entries(config.extraAttributes).map(([name, value]) => ({
     name,
     value,
