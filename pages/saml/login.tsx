@@ -1,19 +1,34 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import type { GetServerSideProps } from 'next';
 import type { FormEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
+import config from 'lib/env';
 
-export default function Login() {
+type Attribute = { key: number; name: string; value: string };
+
+type Props = {
+  defaultAttributes: Omit<Attribute, 'key'>[];
+  defaultAudience: string;
+};
+
+
+export default function Login({ defaultAttributes, defaultAudience }: Props) {
   const router = useRouter();
   const { id, audience, acsUrl, providerName, relayState, namespace } = router.query;
 
   const authUrl = namespace ? `/api/namespace/${namespace}/saml/auth` : '/api/saml/auth';
+  const nextKey = useRef(defaultAttributes.length);
   const [state, setState] = useState({
     username: 'jackson',
     domain: 'example.com',
     acsUrl: 'https://sso.eu.boxyhq.com/api/oauth/saml',
-    audience: 'https://saml.boxyhq.com',
+    audience: defaultAudience,
   });
+  const [attributes, setAttributes] = useState<Attribute[]>(
+    defaultAttributes.map((a, i) => ({ ...a, key: i }))
+  );
+  const [newAttr, setNewAttr] = useState({ name: '', value: '' });
 
   const acsUrlInp = useRef<HTMLInputElement>(null);
   const emailInp = useRef<HTMLInputElement>(null);
@@ -33,21 +48,39 @@ export default function Login() {
     setState({ ...state, [name]: value });
   };
 
+  const handleAttrChange = (index: number, field: 'name' | 'value', value: string) => {
+    setAttributes((prev) => prev.map((a, i) => (i === index ? { ...a, [field]: value } : a)));
+  };
+
+  const handleAttrRemove = (index: number) => {
+    setAttributes((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleAttrAdd = () => {
+    if (!newAttr.name) return;
+    setAttributes((prev) => [...prev, { ...newAttr, key: nextKey.current++ }]);
+    setNewAttr({ name: '', value: '' });
+  };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const { username, domain } = state;
+    const email = `${username}@${domain}`;
+
+    const resolvedAttributes = attributes.map(({ name, value }) => ({ name, value }));
 
     const response = await fetch(authUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        email: `${username}@${domain}`,
+        email,
         id,
         audience: audience || state.audience,
         acsUrl: acsUrl || state.acsUrl,
         providerName,
         relayState,
+        attributes: resolvedAttributes,
       }),
     });
 
@@ -59,6 +92,9 @@ export default function Login() {
       document.write('Error in getting SAML response');
     }
   };
+
+  const inputClass =
+    'w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30';
 
   return (
     <>
@@ -89,7 +125,7 @@ export default function Login() {
                         value={state.acsUrl}
                         onChange={handleChange}
                         placeholder='https://sso.eu.boxyhq.com/api/oauth/saml'
-                        className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
+                        className={inputClass}
                       />
                       <p className='mt-1 text-xs text-gray-500'>
                         This is where we will post the SAML Response
@@ -106,7 +142,7 @@ export default function Login() {
                         value={state.audience}
                         onChange={handleChange}
                         placeholder='https://saml.boxyhq.com'
-                        className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
+                        className={inputClass}
                       />
                     </div>
                   </div>
@@ -123,7 +159,7 @@ export default function Login() {
                     value={state.username}
                     onChange={handleChange}
                     placeholder='jackson'
-                    className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
+                    className={inputClass}
                   />
                 </div>
 
@@ -134,7 +170,7 @@ export default function Login() {
                     id='domain'
                     value={state.domain}
                     onChange={handleChange}
-                    className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'>
+                    className={inputClass}>
                     <option value='example.com'>@example.com</option>
                     <option value='example.org'>@example.org</option>
                   </select>
@@ -147,9 +183,70 @@ export default function Login() {
                     type='password'
                     autoComplete='off'
                     defaultValue='samlstrongpassword'
-                    className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
+                    className={inputClass}
                   />
                   <p className='mt-1 text-xs text-gray-500'>Any password works</p>
+                </div>
+
+                {/* Attributes section */}
+                <div className='col-span-2 space-y-2'>
+                  <label className='block text-sm font-medium text-gray-700'>Attributes</label>
+
+                  {attributes.map((attr, i) => (
+                    <div key={attr.key} className='flex gap-2 items-center'>
+                      <input
+                        type='text'
+                        value={attr.name}
+                        onChange={(e) => handleAttrChange(i, 'name', e.target.value)}
+                        placeholder='name'
+                        className='w-2/5 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
+                      />
+                      <input
+                        type='text'
+                        value={attr.value}
+                        onChange={(e) => handleAttrChange(i, 'value', e.target.value)}
+                        placeholder='value'
+                        className='flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
+                      />
+                      <button
+                        type='button'
+                        onClick={() => handleAttrRemove(i)}
+                        className='shrink-0 rounded-md border border-gray-300 px-2 py-2 text-sm text-gray-500 hover:bg-gray-100'>
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+
+                  {/* Add row */}
+                  <div className='flex gap-2 items-center'>
+                    <input
+                      type='text'
+                      value={newAttr.name}
+                      onChange={(e) => setNewAttr({ ...newAttr, name: e.target.value })}
+                      placeholder='name'
+                      className='w-2/5 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
+                    />
+                    <input
+                      type='text'
+                      value={newAttr.value}
+                      onChange={(e) => setNewAttr({ ...newAttr, value: e.target.value })}
+                      placeholder='value'
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAttrAdd();
+                        }
+                      }}
+                      className='flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
+                    />
+                    <button
+                      type='button'
+                      onClick={handleAttrAdd}
+                      disabled={!newAttr.name}
+                      className='shrink-0 rounded-md border border-gray-300 px-2 py-2 text-sm text-gray-500 hover:bg-gray-100 disabled:opacity-40'>
+                      +
+                    </button>
+                  </div>
                 </div>
 
                 <button
@@ -174,3 +271,11 @@ export default function Login() {
     </>
   );
 }
+
+export const getServerSideProps: GetServerSideProps<Props> = async () => {
+  const defaultAttributes = Object.entries(config.extraAttributes).map(([name, value]) => ({
+    name,
+    value,
+  }));
+  return { props: { defaultAttributes, defaultAudience: config.audience } };
+};
