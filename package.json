@@ -16,14 +16,14 @@
   "dependencies": {
     "@boxyhq/saml20": "1.15.2",
     "next": "16.2.9",
-    "react": "19.2.5",
-    "react-dom": "19.2.5",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
     "react-gtm-module": "2.0.11"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.2.4",
     "@types/node": "25.7.0",
-    "@types/react": "19.2.14",
+    "@types/react": "19.2.17",
     "@types/react-gtm-module": "2.0.4",
     "@typescript-eslint/parser": "8.59.2",
     "eslint": "10.3.0",
