@@ -1,16 +1,22 @@
+import config from 'lib/env';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import type { GetServerSideProps } from 'next';
 import type { FormEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
 
-export default function Login() {
+type LoginProps = {
+  availableDomains: string[];
+};
+
+export default function Login({ availableDomains }: LoginProps) {
   const router = useRouter();
   const { id, audience, acsUrl, providerName, relayState, namespace } = router.query;
 
   const authUrl = namespace ? `/api/namespace/${namespace}/saml/auth` : '/api/saml/auth';
   const [state, setState] = useState({
     username: 'jackson',
-    domain: 'example.com',
+    domain: availableDomains[0],
     acsUrl: 'https://sso.eu.boxyhq.com/api/oauth/saml',
     audience: 'https://saml.boxyhq.com',
   });
@@ -135,8 +141,11 @@ export default function Login() {
                     value={state.domain}
                     onChange={handleChange}
                     className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'>
-                    <option value='example.com'>@example.com</option>
-                    <option value='example.org'>@example.org</option>
+                    {availableDomains.map((domain) => (
+                      <option key={domain} value={domain}>
+                        @{domain}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -164,9 +173,15 @@ export default function Login() {
           {/* Info box */}
           <div className='rounded-md border border-blue-200 bg-blue-50 p-4'>
             <p className='text-sm text-blue-900'>
-              This is a simulated login screen. You may choose any username, but only the domains{' '}
-              <code className='font-mono'>example.com</code> and{' '}
-              <code className='font-mono'>example.org</code> are allowed.
+              This is a simulated login screen. You may choose any username, but only the{' '}
+              {availableDomains.length > 1 ? 'domains' : 'domain'}{' '}
+              {availableDomains.map((domain, index) => (
+                <span key={domain}>
+                  {index > 0 && (index === availableDomains.length - 1 ? ' and ' : ', ')}
+                  <code className='font-mono'>{domain}</code>
+                </span>
+              ))}{' '}
+              {availableDomains.length > 1 ? 'are' : 'is'} allowed.
             </p>
           </div>
         </div>
@@ -174,3 +189,11 @@ export default function Login() {
     </>
   );
 }
+
+export const getServerSideProps: GetServerSideProps<LoginProps> = async () => {
+  return {
+    props: {
+      availableDomains: config.availableDomains,
+    },
+  };
+};
