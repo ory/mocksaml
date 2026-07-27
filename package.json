@@ -16,8 +16,8 @@
   "dependencies": {
     "@boxyhq/saml20": "1.15.2",
     "next": "16.2.9",
-    "react": "19.2.7",
-    "react-dom": "19.2.7",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
     "react-gtm-module": "2.0.11"
   },
   "devDependencies": {
