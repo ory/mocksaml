@@ -46,6 +46,12 @@ describe('GET /api/saml/metadata', () => {
     assert.equal(res.getHeader('content-disposition'), 'attachment; filename="mock-saml-metadata.xml"');
   });
 
+  it('rejects an invalid namespace', async () => {
+    const { req, res } = mockApi({ method: 'GET', query: { namespace: 'a/b' } });
+    await handler(req, res);
+    assert.equal(res._getStatusCode(), 400);
+  });
+
   it('rejects other methods', async () => {
     const { req, res } = mockApi({ method: 'POST' });
     await handler(req, res);

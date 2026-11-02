@@ -78,6 +78,16 @@ describe('/api/saml/sso', () => {
     assert.equal(redirectParams(res).params.has('relayState'), false);
   });
 
+  it('rejects an invalid namespace', async () => {
+    const authn = buildAuthnRequest();
+    const { req, res } = mockApi({
+      method: 'GET',
+      query: { SAMLRequest: authn.redirect, namespace: 'a b' },
+    });
+    await handler(req, res);
+    assert.equal(res._getStatusCode(), 400);
+  });
+
   it('rejects other methods', async () => {
     const { req, res } = mockApi({ method: 'PUT' });
     await handler(req, res);

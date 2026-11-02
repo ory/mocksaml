@@ -4,16 +4,16 @@ import React from 'react';
 import config from '../lib/env';
 import { IdPMetadata } from '../types';
 import { getEntityId, getSSOUrl } from 'lib/entity-id';
+import { namespacePath, parseNamespace } from 'lib/namespace';
 
 const Home: React.FC<{ metadata: IdPMetadata; params: any }> = ({ metadata, params }) => {
   const namespace = params.namespace;
   const { ssoUrl: appUrl, entityId, certificate } = metadata;
   const namespaceEntityId = getEntityId(entityId, namespace);
 
-  const metadataDownloadUrl =
-    '/api' + (namespace ? `/namespace/${namespace}` : '') + '/saml/metadata?download=true';
-  const metadataUrl = '/api' + (namespace ? `/namespace/${namespace}` : '') + '/saml/metadata';
-  const loginUrl = (namespace ? `/namespace/${namespace}` : '') + '/saml/login';
+  const metadataUrl = `/api${namespacePath(namespace)}/saml/metadata`;
+  const metadataDownloadUrl = `${metadataUrl}?download=true`;
+  const loginUrl = `${namespacePath(namespace)}/saml/login`;
   const ssoUrl = getSSOUrl(appUrl, namespace);
 
   return (
@@ -110,6 +110,10 @@ const Home: React.FC<{ metadata: IdPMetadata; params: any }> = ({ metadata, para
 };
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+  if (!parseNamespace(params ?? {}).ok) {
+    return { notFound: true };
+  }
+
   const metadata: IdPMetadata = {
     ssoUrl: config.appUrl,
     entityId: config.entityId,

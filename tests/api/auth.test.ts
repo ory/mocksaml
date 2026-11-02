@@ -68,6 +68,13 @@ describe('POST /api/saml/auth', () => {
     assert.doesNotMatch(res._getData(), /SAMLResponse/);
   });
 
+  it('rejects an invalid namespace', async () => {
+    const { req, res } = login({ email: 'jackson@example.com' }, { namespace: '../x' });
+    await handler(req, res);
+    assert.equal(res._getStatusCode(), 400);
+    assert.doesNotMatch(res._getData(), /SAMLResponse/);
+  });
+
   it('rejects other methods', async () => {
     const { req, res } = mockApi({ method: 'GET' });
     await handler(req, res);

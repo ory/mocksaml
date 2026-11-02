@@ -4,9 +4,15 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import type { User } from 'types';
 import saml from '@boxyhq/saml20';
 import { getEntityId } from 'lib/entity-id';
+import { parseNamespace } from 'lib/namespace';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
+    const parsed = parseNamespace(req.query);
+    if (!parsed.ok) {
+      return res.status(400).send('Invalid namespace');
+    }
+
     const { email, audience, acsUrl, id, relayState } = req.body;
 
     if (typeof email !== 'string' || !email) {
@@ -28,7 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     };
 
     const xmlSigned = await saml.createSAMLResponse({
-      issuer: getEntityId(config.entityId, req.query.namespace as any),
+      issuer: getEntityId(config.entityId, parsed.namespace),
       audience,
       acsUrl,
       requestId: id,

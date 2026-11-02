@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import saml from '@boxyhq/saml20';
+import { namespacePath, parseNamespace } from 'lib/namespace';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<string>) {
   switch (req.method) {
@@ -13,6 +14,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 }
 
 async function processSAMLRequest(req: NextApiRequest, res: NextApiResponse, isPost: boolean) {
+  const parsed = parseNamespace(req.query);
+  if (!parsed.ok) {
+    return res.status(400).send('Invalid namespace');
+  }
+
   let samlRequest, relayState, isDeflated;
 
   if (isPost) {
@@ -44,7 +50,7 @@ async function processSAMLRequest(req: NextApiRequest, res: NextApiResponse, isP
       params.set('relayState', relayState);
     }
 
-    const loginUrl = (req.query.namespace ? `/namespace/${req.query.namespace}` : '') + '/saml/login';
+    const loginUrl = `${namespacePath(parsed.namespace)}/saml/login`;
 
     res.redirect(302, `${loginUrl}?${params.toString()}`);
   } catch (err) {
