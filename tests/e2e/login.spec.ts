@@ -51,3 +51,22 @@ test('namespaced SP-initiated login uses the namespaced issuer', async ({ page }
   const profile = await validateResponse(samlResponse, { inResponseTo: authn.id });
   expect(profile.issuer).toBe('https://idp.test/entityid/acme');
 });
+
+// The mocksaml.com Datadog synthetic locates the Sign In button with these selectors; keep them working.
+test('Sign In button matches the synthetic monitor locators', async ({ page }) => {
+  const authn = buildAuthnRequest({ providerName: 'BoxyHQ' });
+  await page.goto(`/api/saml/sso?SAMLRequest=${encodeURIComponent(authn.redirect)}&RelayState=state-dd`);
+
+  const byXPath = page.locator(
+    'xpath=/html[1]/body[1]/div[1]/main[1]/div[1]/div[1]/div[1]/form[1]/div[1]/button[1]'
+  );
+  const byClass = page.locator('.bg-primary');
+  const byText = page.getByText('Sign In', { exact: true });
+  const byTag = page.locator('button');
+
+  for (const locator of [byXPath, byClass, byText, byTag]) {
+    await expect(locator).toHaveCount(1);
+    await expect(locator).toHaveAttribute('type', 'submit');
+    await expect(locator).toHaveText('Sign In');
+  }
+});
