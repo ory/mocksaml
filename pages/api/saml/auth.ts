@@ -42,14 +42,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const encodedSamlResponse = Buffer.from(xmlSigned).toString('base64');
     const html = saml.createPostForm(acsUrl, [
-      {
-        name: 'RelayState',
-        value: relayState,
-      },
-      {
-        name: 'SAMLResponse',
-        value: encodedSamlResponse,
-      },
+      ...(relayState ? [{ name: 'RelayState', value: relayState }] : []),
+      { name: 'SAMLResponse', value: encodedSamlResponse },
     ]);
 
     res.send(html);

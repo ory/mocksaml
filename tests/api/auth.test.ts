@@ -33,6 +33,14 @@ describe('POST /api/saml/auth', () => {
     assert.match(profile.claims.id, /^[a-f0-9]{64}$/);
   });
 
+  it('omits RelayState from the form when there is none', async () => {
+    const { req, res } = login({ email: 'jackson@example.com' });
+    await handler(req, res);
+
+    assert.equal(res._getStatusCode(), 200);
+    assert.doesNotMatch(res._getData(), /RelayState/);
+  });
+
   it('uses the namespaced issuer', async () => {
     const { req, res } = login({ email: 'jackson@example.org' }, { namespace: 'acme' });
     await handler(req, res);

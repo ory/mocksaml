@@ -47,15 +47,16 @@ describe('/api/saml/sso', () => {
     const { req, res } = mockApi({ method: 'POST', body: { SAMLRequest: authn.post } });
     await handler(req, res);
 
-    assert.ok(res._getStatusCode() >= 400);
+    assert.equal(res._getStatusCode(), 400);
   });
 
-  it('rejects garbage', async () => {
+  it('rejects garbage without leaking the error', async () => {
     mock.method(console, 'error', () => {});
     const { req, res } = mockApi({ method: 'GET', query: { SAMLRequest: 'not-saml' } });
     await handler(req, res);
 
-    assert.ok(res._getStatusCode() >= 400);
+    assert.equal(res._getStatusCode(), 400);
+    assert.equal(res._getData(), 'Invalid SAML request');
   });
 
   it('redirects to the namespaced login page', async () => {
@@ -69,8 +70,13 @@ describe('/api/saml/sso', () => {
     assert.equal(redirectParams(res).path, '/namespace/acme/saml/login');
   });
 
-  // Currently serialises as the string "undefined" (task 2).
-  it.todo('omits relayState from the redirect when the request has none');
+  it('omits relayState from the redirect when the request has none', async () => {
+    const authn = buildAuthnRequest();
+    const { req, res } = mockApi({ method: 'GET', query: { SAMLRequest: authn.redirect } });
+    await handler(req, res);
+
+    assert.equal(redirectParams(res).params.has('relayState'), false);
+  });
 
   it('rejects other methods', async () => {
     const { req, res } = mockApi({ method: 'PUT' });

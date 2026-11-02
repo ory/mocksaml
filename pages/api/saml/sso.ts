@@ -39,7 +39,10 @@ async function processSAMLRequest(req: NextApiRequest, res: NextApiResponse, isP
       }
     }
 
-    const params = new URLSearchParams({ id, audience, acsUrl, providerName, relayState });
+    const params = new URLSearchParams({ id, audience, acsUrl, providerName });
+    if (relayState) {
+      params.set('relayState', relayState);
+    }
 
     const loginUrl = (req.query.namespace ? `/namespace/${req.query.namespace}` : '') + '/saml/login';
 
@@ -47,6 +50,6 @@ async function processSAMLRequest(req: NextApiRequest, res: NextApiResponse, isP
   } catch (err) {
     console.error(err);
 
-    res.status(500).send(`${err}`);
+    res.status(400).send('Invalid SAML request');
   }
 }
