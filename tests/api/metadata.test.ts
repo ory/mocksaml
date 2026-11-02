@@ -30,9 +30,21 @@ describe('GET /api/saml/metadata', () => {
     assert.equal(parsed.sso.postUrl, 'https://idp.test/api/namespace/acme/saml/sso');
   });
 
-  // Task 3: the download branch pipes the xml string through stream.pipeline, which never
-  // settles against a mocked response.
-  it.todo('sets a download disposition when ?download is present');
+  it('sets a download disposition when ?download is present', async () => {
+    const { req, res } = mockApi({ method: 'GET', query: { download: '', namespace: 'acme' } });
+    await handler(req, res);
+
+    assert.equal(res._getStatusCode(), 200);
+    assert.equal(res.getHeader('content-disposition'), 'attachment; filename="mock-saml-metadata-acme.xml"');
+    assert.ok(await saml.parseMetadata(res._getData()));
+  });
+
+  it('still downloads with ?download=true', async () => {
+    const { req, res } = mockApi({ method: 'GET', query: { download: 'true' } });
+    await handler(req, res);
+
+    assert.equal(res.getHeader('content-disposition'), 'attachment; filename="mock-saml-metadata.xml"');
+  });
 
   it('rejects other methods', async () => {
     const { req, res } = mockApi({ method: 'POST' });
