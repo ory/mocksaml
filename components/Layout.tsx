@@ -17,7 +17,7 @@ export default function Layout({ children }: LayoutProps) {
       <Head>
         <title>{title}</title>
         <meta name='description' content={description} />
-        <meta name='author' content='BoxyHQ' />
+        <meta name='author' content='Ory' />
 
         <meta property='og:url' content={website} />
         <meta property='og:type' content='website' />

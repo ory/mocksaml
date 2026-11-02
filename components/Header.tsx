@@ -24,7 +24,7 @@ export default function Header() {
         <div className='flex flex-col items-center space-y-2 md:flex-row md:space-x-2 md:space-y-0'>
           <a
             className='rounded-md border border-primary px-3 py-1.5 text-sm font-semibold text-primary hover:bg-primary-soft'
-            href='https://github.com/boxyhq/jackson'
+            href='https://github.com/ory/polis'
             rel='noopener noreferrer'
             target='_blank'>
             Integrate SAML with a few lines of code
