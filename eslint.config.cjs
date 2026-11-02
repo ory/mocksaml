@@ -1,53 +1,18 @@
-const nextCoreWebVitals = require('eslint-config-next/core-web-vitals');
-const i18Next = require('eslint-plugin-i18next');
-const globals = require('globals');
-const tsParser = require('@typescript-eslint/parser');
 const js = require('@eslint/js');
-
-const { FlatCompat } = require('@eslint/eslintrc');
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all,
-});
+const nextCoreWebVitals = require('eslint-config-next/core-web-vitals');
+const prettier = require('eslint-config-prettier');
+const i18next = require('eslint-plugin-i18next');
 
 module.exports = [
   {
-    ignores: [
-      '.next',
-      '**/node_modules',
-      '**/dist',
-      'eslint.config.cjs',
-      'node_modules/**',
-      '.next/**',
-      'out/**',
-      'build/**',
-      'next-env.d.ts',
-    ],
+    ignores: ['.next/**', 'node_modules/**', 'dist/**', 'out/**', 'build/**', 'eslint.config.cjs', 'next-env.d.ts'],
   },
-  ...compat.extends('eslint:recommended'),
-  ...compat.extends('prettier'),
+  js.configs.recommended,
   ...nextCoreWebVitals,
-  ...compat.extends('plugin:i18next/recommended'),
-  {
-    plugins: {
-      i18next: i18Next,
-    },
-
-    languageOptions: {
-      globals: {
-        ...globals.node,
-      },
-
-      parser: tsParser,
-      ecmaVersion: 13,
-      sourceType: 'module',
-    },
-  },
+  i18next.configs['flat/recommended'],
+  prettier,
   {
     files: ['**/*.ts', '**/*.tsx'],
-
     rules: {
       'no-undef': 'off',
       'no-unused-vars': 'off',
@@ -60,17 +25,8 @@ module.exports = [
   },
   {
     files: ['**/*.js'],
-
     rules: {
-      '@typescript-eslint/no-var-requires': 'off',
       '@typescript-eslint/no-require-imports': 'off',
-    },
-  },
-  {
-    files: ['sdk/**/*'],
-
-    rules: {
-      '@next/next/no-img-element': 'off',
     },
   },
 ];
