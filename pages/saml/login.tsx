@@ -79,7 +79,9 @@ export default function Login() {
                 {!acsUrl && (
                   <div className='col-span-2 space-y-3'>
                     <div>
-                      <label className='block mb-1 text-sm font-medium text-gray-700'>ACS URL</label>
+                      <label htmlFor='acsUrl' className='block mb-1 text-sm font-medium text-gray-700'>
+                        ACS URL
+                      </label>
                       <input
                         ref={acsUrlInp}
                         name='acsUrl'
@@ -97,7 +99,9 @@ export default function Login() {
                     </div>
 
                     <div>
-                      <label className='block mb-1 text-sm font-medium text-gray-700'>Audience</label>
+                      <label htmlFor='audience' className='block mb-1 text-sm font-medium text-gray-700'>
+                        Audience
+                      </label>
                       <input
                         name='audience'
                         id='audience'
@@ -113,7 +117,9 @@ export default function Login() {
                 )}
 
                 <div>
-                  <label className='block mb-1 text-sm font-medium text-gray-700'>Email</label>
+                  <label htmlFor='username' className='block mb-1 text-sm font-medium text-gray-700'>
+                    Email
+                  </label>
                   <input
                     ref={emailInp}
                     name='username'
@@ -128,7 +134,9 @@ export default function Login() {
                 </div>
 
                 <div>
-                  <label className='block mb-1 text-sm font-medium text-gray-700'>Domain</label>
+                  <label htmlFor='domain' className='block mb-1 text-sm font-medium text-gray-700'>
+                    Domain
+                  </label>
                   <select
                     name='domain'
                     id='domain'
@@ -141,7 +149,9 @@ export default function Login() {
                 </div>
 
                 <div className='col-span-2'>
-                  <label className='block mb-1 text-sm font-medium text-gray-700'>Password</label>
+                  <label htmlFor='password' className='block mb-1 text-sm font-medium text-gray-700'>
+                    Password
+                  </label>
                   <input
                     id='password'
                     type='password'

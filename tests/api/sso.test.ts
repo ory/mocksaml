@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
+import { describe, it, mock } from 'node:test';
 import handler from 'pages/api/saml/sso';
 import { buildAuthnRequest, mockApi, sp } from '../helpers';
 
@@ -42,6 +42,7 @@ describe('/api/saml/sso', () => {
   });
 
   it('rejects an unsigned POST request', async () => {
+    mock.method(console, 'error', () => {});
     const authn = buildAuthnRequest({ signed: false });
     const { req, res } = mockApi({ method: 'POST', body: { SAMLRequest: authn.post } });
     await handler(req, res);
@@ -50,6 +51,7 @@ describe('/api/saml/sso', () => {
   });
 
   it('rejects garbage', async () => {
+    mock.method(console, 'error', () => {});
     const { req, res } = mockApi({ method: 'GET', query: { SAMLRequest: 'not-saml' } });
     await handler(req, res);
 

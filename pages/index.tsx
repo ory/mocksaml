@@ -61,8 +61,11 @@ const Home: React.FC<{ metadata: IdPMetadata; params: any }> = ({ metadata, para
           <h2 className='mb-5 text-center text-2xl font-semibold text-gray-900'>Mock SAML Metadata</h2>
           <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
             <div>
-              <label className='block mb-1 text-sm font-medium text-gray-700'>SSO URL</label>
+              <label htmlFor='ssoUrl' className='block mb-1 text-sm font-medium text-gray-700'>
+                SSO URL
+              </label>
               <input
+                id='ssoUrl'
                 type='text'
                 defaultValue={ssoUrl}
                 disabled
@@ -71,8 +74,11 @@ const Home: React.FC<{ metadata: IdPMetadata; params: any }> = ({ metadata, para
             </div>
 
             <div>
-              <label className='block mb-1 text-sm font-medium text-gray-700'>Entity ID</label>
+              <label htmlFor='entityId' className='block mb-1 text-sm font-medium text-gray-700'>
+                Entity ID
+              </label>
               <input
+                id='entityId'
                 type='text'
                 defaultValue={namespaceEntityId}
                 disabled
@@ -81,8 +87,11 @@ const Home: React.FC<{ metadata: IdPMetadata; params: any }> = ({ metadata, para
             </div>
 
             <div className='md:col-span-2'>
-              <label className='block mb-1 text-sm font-medium text-gray-700'>Certificate</label>
+              <label htmlFor='certificate' className='block mb-1 text-sm font-medium text-gray-700'>
+                Certificate
+              </label>
               <textarea
+                id='certificate'
                 defaultValue={certificate}
                 disabled
                 className='h-48 w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 text-sm font-mono text-gray-700'

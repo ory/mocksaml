@@ -7,7 +7,12 @@ import config from 'lib/env';
 const appUrlWith = (env: Record<string, string>) =>
   execFileSync(
     process.execPath,
-    ['--import', 'tsx', '-e', "import('./lib/env.ts').then((m) => process.stdout.write(m.default.appUrl))"],
+    [
+      '--import',
+      'tsx',
+      '-e',
+      "import('./lib/env.ts').then((m) => process.stdout.write((m.default.default ?? m.default).appUrl))",
+    ],
     { env: { ...process.env, APP_URL: '', VERCEL_BRANCH_URL: '', VERCEL_PROJECT_PRODUCTION_URL: '', ...env } }
   ).toString();
 
