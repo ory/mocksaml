@@ -3,11 +3,8 @@ import saml from '@boxyhq/saml20';
 
 import config from 'lib/env';
 import type { IdPMetadata } from 'types';
-import stream from 'stream';
-import { promisify } from 'util';
+import { pipeline } from 'stream/promises';
 import { getEntityId, getSSOUrl } from 'lib/entity-id';
-
-const pipeline = promisify(stream.pipeline);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<IdPMetadata | string>) {
   switch (req.method) {
