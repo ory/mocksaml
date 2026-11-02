@@ -69,7 +69,7 @@ describe('POST /api/saml/auth', () => {
     await handler(req, res);
 
     assert.equal(res._getStatusCode(), 403);
-    assert.doesNotMatch(res._getData(), /SAMLResponse/);
+    assert.doesNotMatch(res._getData(), /SAMLResponse|evil\.com/);
   });
 
   it('returns 400 when email is missing', async () => {

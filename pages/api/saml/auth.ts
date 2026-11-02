@@ -26,7 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (!email.endsWith('@example.com') && !email.endsWith('@example.org')) {
-      return res.status(403).send(`${email} denied access`);
+      return res.status(403).send('Only example.com and example.org emails are allowed');
     }
 
     const userId = createHash('sha256').update(email).digest('hex');

@@ -25,6 +25,8 @@ test('namespaced home page scopes the IdP details', async ({ page, baseURL }) =>
 });
 
 test('invalid namespace is a 404', async ({ page }) => {
-  const response = await page.goto('/namespace/not%20valid');
-  expect(response?.status()).toBe(404);
+  for (const path of ['/namespace/not%20valid', '/namespace/not%20valid/saml/login']) {
+    const response = await page.goto(path);
+    expect(response?.status(), path).toBe(404);
+  }
 });

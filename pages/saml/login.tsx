@@ -1,6 +1,8 @@
+import type { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useEffect, useRef } from 'react';
+import { parseNamespace } from 'lib/namespace';
 
 const inputClass =
   'w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30';
@@ -146,5 +148,11 @@ export default function Login() {
   );
 }
 
-// Render with the query available so the SP-initiated form does not flash the IdP one first.
-export const getServerSideProps = async () => ({ props: {} });
+// Server-rendered so the SP-initiated form does not flash the IdP one first.
+export const getServerSideProps = (async ({ params }) => {
+  if (!parseNamespace(params ?? {}).ok) {
+    return { notFound: true };
+  }
+
+  return { props: {} };
+}) satisfies GetServerSideProps;
