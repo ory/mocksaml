@@ -40,3 +40,4 @@ next-env.d.ts
 key.pem
 public.crt
 .vscode
+.idea
