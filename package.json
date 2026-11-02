@@ -9,6 +9,7 @@
     "build": "next build",
     "start": "next start -p 4000",
     "lint": "eslint -c eslint.config.cjs ./",
+    "test": "tsx --test --import ./tests/setup.ts 'tests/**/*.test.ts'",
     "check-format": "prettier --check .",
     "format": "prettier --write .",
     "release": "git checkout release && git merge origin/main && release-it && git checkout main && git merge origin/release && git push origin main"
@@ -27,11 +28,13 @@
     "eslint": "10.14.0",
     "eslint-config-next": "16.4.3",
     "eslint-config-prettier": "10.1.8",
+    "node-mocks-http": "1.18.1",
     "postcss": "8.5.32",
     "prettier": "3.9.10",
     "prettier-plugin-tailwindcss": "0.8.1",
     "release-it": "21.1.2",
     "tailwindcss": "4.3.3",
+    "tsx": "4.23.15",
     "typescript": "6.0.3"
   },
   "engines": {
