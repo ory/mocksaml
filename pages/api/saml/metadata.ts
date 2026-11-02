@@ -2,8 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import saml from '@boxyhq/saml20';
 
 import config from 'lib/env';
-import { getEntityId, getSSOUrl } from 'lib/entity-id';
-import { parseNamespace } from 'lib/namespace';
+import { getEntityId, getSSOUrl, parseNamespace } from 'lib/namespace';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<string>) {
   if (req.method !== 'GET') {

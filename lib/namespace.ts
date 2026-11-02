@@ -17,3 +17,9 @@ export const parseNamespace = (query: { namespace?: string | string[] }): Parsed
 };
 
 export const namespacePath = (namespace: string | undefined) => (namespace ? `/namespace/${namespace}` : '');
+
+export const getEntityId = (entityId: string, namespace: string | undefined) =>
+  namespace ? `${entityId}/${namespace}` : entityId;
+
+export const getSSOUrl = (appUrl: string, namespace: string | undefined) =>
+  `${appUrl}/api${namespacePath(namespace)}/saml/sso`;
