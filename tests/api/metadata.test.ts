@@ -18,7 +18,7 @@ describe('GET /api/saml/metadata', () => {
     assert.equal(parsed.sso.redirectUrl, 'https://idp.test/api/saml/sso');
     assert.equal(parsed.sso.postUrl, 'https://idp.test/api/saml/sso');
     assert.equal(parsed.publicKey, saml.stripCertHeaderAndFooter(idpCert));
-    assert.match(res._getData(), /WantAuthnRequestsSigned="true"/);
+    assert.match(res._getData(), /WantAuthnRequestsSigned="false"/);
   });
 
   it('scopes entity id and sso url to the namespace', async () => {

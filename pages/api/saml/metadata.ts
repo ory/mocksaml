@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     entityId: getEntityId(config.entityId, namespace),
     ssoUrl: getSSOUrl(config.appUrl, namespace),
     x509cert: saml.stripCertHeaderAndFooter(config.publicKey),
-    wantAuthnRequestsSigned: true,
+    wantAuthnRequestsSigned: false,
   });
 
   res.setHeader('Content-Type', 'text/xml');

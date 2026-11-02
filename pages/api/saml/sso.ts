@@ -28,8 +28,6 @@ async function processSAMLRequest(req: NextApiRequest, res: NextApiResponse, isP
   } else {
     relayState = req.query.RelayState;
     samlRequest = req.query.SAMLRequest;
-    // sigAlg = req.query.SigAlg;
-    // signature = req.query.Signature;
 
     isDeflated = true;
   }
