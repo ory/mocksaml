@@ -15,6 +15,6 @@ describe('GET /api/health', () => {
   it('rejects other methods', async () => {
     const { req, res } = mockApi({ method: 'POST' });
     await handler(req, res);
-    assert.equal(res._getStatusCode(), 503);
+    assert.equal(res._getStatusCode(), 405);
   });
 });
