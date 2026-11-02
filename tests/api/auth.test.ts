@@ -33,6 +33,18 @@ describe('POST /api/saml/auth', () => {
     assert.match(profile.claims.id, /^[a-f0-9]{64}$/);
   });
 
+  it('accepts username and domain from the login form', async () => {
+    const { req, res } = login({ username: 'alice', domain: 'example.org' });
+    await handler(req, res);
+
+    assert.equal(res._getStatusCode(), 200);
+    const profile = await saml.validate(extractSamlResponse(res._getData()), {
+      publicKey: idpCert,
+      audience: sp.entityId,
+    });
+    assert.equal(profile.claims.email, 'alice@example.org');
+  });
+
   it('omits RelayState from the form when there is none', async () => {
     const { req, res } = login({ email: 'jackson@example.com' });
     await handler(req, res);

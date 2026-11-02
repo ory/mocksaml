@@ -13,7 +13,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).send('Invalid namespace');
     }
 
-    const { email, audience, acsUrl, id, relayState } = req.body;
+    const { username, domain, audience, acsUrl, id, relayState } = req.body;
+    const email: unknown = req.body.email ?? (username && domain ? `${username}@${domain}` : undefined);
 
     if (typeof email !== 'string' || !email) {
       return res.status(400).send('email is required');

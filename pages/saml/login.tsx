@@ -1,64 +1,31 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import type { FormEvent } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
+
+const inputClass =
+  'w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30';
+
+const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
 
 export default function Login() {
   const router = useRouter();
-  const { id, audience, acsUrl, providerName, relayState, namespace } = router.query;
+  const namespace = first(router.query.namespace);
+  const acsUrl = first(router.query.acsUrl);
+  const spInitiated = Boolean(acsUrl);
 
   const authUrl = namespace ? `/api/namespace/${namespace}/saml/auth` : '/api/saml/auth';
-  const [state, setState] = useState({
-    username: 'jackson',
-    domain: 'example.com',
-    acsUrl: 'https://sso.eu.boxyhq.com/api/oauth/saml',
-    audience: 'https://saml.boxyhq.com',
-  });
+  const hidden = ['id', 'audience', 'acsUrl', 'providerName', 'relayState']
+    .map((name) => [name, first(router.query[name])] as const)
+    .filter(([, value]) => value !== undefined);
 
   const acsUrlInp = useRef<HTMLInputElement>(null);
   const emailInp = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (acsUrl && emailInp.current) {
-      emailInp.current.focus();
-      emailInp.current.select();
-    } else if (acsUrlInp.current) {
-      acsUrlInp.current.focus();
-      acsUrlInp.current.select();
-    }
-  }, [acsUrl]);
-
-  const handleChange = (e: FormEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.currentTarget;
-    setState({ ...state, [name]: value });
-  };
-
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const { username, domain } = state;
-
-    const response = await fetch(authUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: `${username}@${domain}`,
-        id,
-        audience: audience || state.audience,
-        acsUrl: acsUrl || state.acsUrl,
-        providerName,
-        relayState,
-      }),
-    });
-
-    if (response.ok) {
-      const newDoc = document.open('text/html', 'replace');
-      newDoc.write(await response.text());
-      newDoc.close();
-    } else {
-      document.write('Error in getting SAML response');
-    }
-  };
+    const target = spInitiated ? emailInp.current : acsUrlInp.current;
+    target?.focus();
+    target?.select();
+  }, [spInitiated]);
 
   return (
     <>
@@ -67,31 +34,33 @@ export default function Login() {
       </Head>
 
       <div className='flex min-h-screen justify-center bg-white pt-12'>
-        <div className='w-full max-w-xl px-3 space-y-4'>
-          {/* Card */}
+        <div className='w-full max-w-xl space-y-4 px-3'>
           <div className='rounded-lg border border-gray-200 bg-white p-4 shadow-sm'>
             <h2 className='mb-6 text-center text-2xl font-semibold text-gray-900'>
-              {!acsUrl ? 'SAML IdP Login' : 'SAML SSO Login'}
+              {spInitiated ? 'SAML SSO Login' : 'SAML IdP Login'}
             </h2>
 
-            <form onSubmit={handleSubmit}>
+            <form method='POST' action={authUrl}>
+              {hidden.map(([name, value]) => (
+                <input key={name} type='hidden' name={name} value={value} />
+              ))}
+
               <div className='grid grid-cols-2 gap-x-5 gap-y-3'>
-                {!acsUrl && (
+                {!spInitiated && (
                   <div className='col-span-2 space-y-3'>
                     <div>
-                      <label htmlFor='acsUrl' className='block mb-1 text-sm font-medium text-gray-700'>
+                      <label htmlFor='acsUrl' className='mb-1 block text-sm font-medium text-gray-700'>
                         ACS URL
                       </label>
                       <input
                         ref={acsUrlInp}
                         name='acsUrl'
                         id='acsUrl'
-                        type='text'
+                        type='url'
+                        required
                         autoComplete='off'
-                        value={state.acsUrl}
-                        onChange={handleChange}
-                        placeholder='https://sso.eu.boxyhq.com/api/oauth/saml'
-                        className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
+                        defaultValue='https://sso.eu.boxyhq.com/api/oauth/saml'
+                        className={inputClass}
                       />
                       <p className='mt-1 text-xs text-gray-500'>
                         This is where we will post the SAML Response
@@ -99,25 +68,24 @@ export default function Login() {
                     </div>
 
                     <div>
-                      <label htmlFor='audience' className='block mb-1 text-sm font-medium text-gray-700'>
+                      <label htmlFor='audience' className='mb-1 block text-sm font-medium text-gray-700'>
                         Audience
                       </label>
                       <input
                         name='audience'
                         id='audience'
                         type='text'
+                        required
                         autoComplete='off'
-                        value={state.audience}
-                        onChange={handleChange}
-                        placeholder='https://saml.boxyhq.com'
-                        className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
+                        defaultValue='https://saml.boxyhq.com'
+                        className={inputClass}
                       />
                     </div>
                   </div>
                 )}
 
                 <div>
-                  <label htmlFor='username' className='block mb-1 text-sm font-medium text-gray-700'>
+                  <label htmlFor='username' className='mb-1 block text-sm font-medium text-gray-700'>
                     Email
                   </label>
                   <input
@@ -125,31 +93,25 @@ export default function Login() {
                     name='username'
                     id='username'
                     type='text'
+                    required
                     autoComplete='off'
-                    value={state.username}
-                    onChange={handleChange}
-                    placeholder='jackson'
-                    className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
+                    defaultValue='jackson'
+                    className={inputClass}
                   />
                 </div>
 
                 <div>
-                  <label htmlFor='domain' className='block mb-1 text-sm font-medium text-gray-700'>
+                  <label htmlFor='domain' className='mb-1 block text-sm font-medium text-gray-700'>
                     Domain
                   </label>
-                  <select
-                    name='domain'
-                    id='domain'
-                    value={state.domain}
-                    onChange={handleChange}
-                    className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'>
+                  <select name='domain' id='domain' defaultValue='example.com' className={inputClass}>
                     <option value='example.com'>@example.com</option>
                     <option value='example.org'>@example.org</option>
                   </select>
                 </div>
 
                 <div className='col-span-2'>
-                  <label htmlFor='password' className='block mb-1 text-sm font-medium text-gray-700'>
+                  <label htmlFor='password' className='mb-1 block text-sm font-medium text-gray-700'>
                     Password
                   </label>
                   <input
@@ -157,7 +119,7 @@ export default function Login() {
                     type='password'
                     autoComplete='off'
                     defaultValue='samlstrongpassword'
-                    className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
+                    className={inputClass}
                   />
                   <p className='mt-1 text-xs text-gray-500'>Any password works</p>
                 </div>
@@ -171,7 +133,6 @@ export default function Login() {
             </form>
           </div>
 
-          {/* Info box */}
           <div className='rounded-md border border-blue-200 bg-blue-50 p-4'>
             <p className='text-sm text-blue-900'>
               This is a simulated login screen. You may choose any username, but only the domains{' '}
@@ -184,3 +145,6 @@ export default function Login() {
     </>
   );
 }
+
+// Render with the query available so the SP-initiated form does not flash the IdP one first.
+export const getServerSideProps = async () => ({ props: {} });
