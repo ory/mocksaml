@@ -49,11 +49,16 @@ describe('POST /api/saml/auth', () => {
     await handler(req, res);
 
     assert.equal(res._getStatusCode(), 403);
+    assert.doesNotMatch(res._getData(), /SAMLResponse/);
   });
 
-  // Task 1: the handler keeps going after the 403 and signs a response anyway.
-  it.todo('does not sign a response for a denied email');
-  it.todo('returns 400 when email is missing');
+  it('returns 400 when email is missing', async () => {
+    const { req, res } = login({});
+    await handler(req, res);
+
+    assert.equal(res._getStatusCode(), 400);
+    assert.doesNotMatch(res._getData(), /SAMLResponse/);
+  });
 
   it('rejects other methods', async () => {
     const { req, res } = mockApi({ method: 'GET' });

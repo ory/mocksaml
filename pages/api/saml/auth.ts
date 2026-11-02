@@ -9,8 +9,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method === 'POST') {
     const { email, audience, acsUrl, id, relayState } = req.body;
 
+    if (typeof email !== 'string' || !email) {
+      return res.status(400).send('email is required');
+    }
+
     if (!email.endsWith('@example.com') && !email.endsWith('@example.org')) {
-      res.status(403).send(`${email} denied access`);
+      return res.status(403).send(`${email} denied access`);
     }
 
     const userId = createHash('sha256').update(email).digest('hex');
