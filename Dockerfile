@@ -1,4 +1,4 @@
-ARG NODEJS_IMAGE=node:22.16-alpine3.21
+ARG NODEJS_IMAGE=node:26.13.0-alpine3.24
 FROM --platform=$BUILDPLATFORM $NODEJS_IMAGE AS base
 
 FROM base AS deps
