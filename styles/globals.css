@@ -8,7 +8,6 @@
 
   /* Soft / UI surfaces */
   --color-primary-soft: oklch(51.1% 0.262 276.966 / 0.1);
-  --color-primary-muted: oklch(51.1% 0.262 276.966 / 0.6);
 
   /* Focus ring */
   --color-primary-ring: oklch(51.1% 0.262 276.966 / 0.4);

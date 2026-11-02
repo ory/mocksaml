@@ -1,9 +1,15 @@
 import { createHash } from 'crypto';
 import config from 'lib/env';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import type { User } from 'types';
 import saml from '@boxyhq/saml20';
 import { getEntityId, parseNamespace } from 'lib/namespace';
+
+type User = {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+};
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
