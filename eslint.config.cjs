@@ -1,7 +1,6 @@
 const js = require('@eslint/js');
 const nextCoreWebVitals = require('eslint-config-next/core-web-vitals');
 const prettier = require('eslint-config-prettier');
-const i18next = require('eslint-plugin-i18next');
 
 module.exports = [
   {
@@ -9,7 +8,6 @@ module.exports = [
   },
   js.configs.recommended,
   ...nextCoreWebVitals,
-  i18next.configs['flat/recommended'],
   prettier,
   {
     files: ['**/*.ts', '**/*.tsx'],
@@ -20,7 +18,6 @@ module.exports = [
       '@typescript-eslint/no-explicit-any': 'off',
       'import/no-anonymous-default-export': 'off',
       '@typescript-eslint/no-require-imports': 'off',
-      'i18next/no-literal-string': 'off',
     },
   },
   {
