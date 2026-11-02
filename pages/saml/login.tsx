@@ -62,6 +62,7 @@ export default function Login() {
                         required
                         autoComplete='off'
                         defaultValue='https://sso.eu.boxyhq.com/api/oauth/saml'
+                        placeholder='https://sso.eu.boxyhq.com/api/oauth/saml'
                         className={inputClass}
                       />
                       <p className='mt-1 text-xs text-gray-500'>
@@ -80,6 +81,7 @@ export default function Login() {
                         required
                         autoComplete='off'
                         defaultValue='https://saml.boxyhq.com'
+                        placeholder='https://saml.boxyhq.com'
                         className={inputClass}
                       />
                     </div>
@@ -98,6 +100,7 @@ export default function Login() {
                     required
                     autoComplete='off'
                     defaultValue='jackson'
+                    placeholder='jackson'
                     className={inputClass}
                   />
                 </div>

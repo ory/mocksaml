@@ -7,9 +7,10 @@ test('IdP-initiated login posts a signed response to the ACS url', async ({ page
   await page.goto('/saml/login');
   await expect(page.getByRole('heading', { name: 'SAML IdP Login' })).toBeVisible();
 
-  await page.getByLabel('ACS URL').fill(sp.acsUrl);
-  await page.getByLabel('Audience').fill(sp.entityId);
-  await page.getByLabel('Email').fill('alice');
+  // Placeholders are selectors for downstream suites (Ory cloud e2e, Polis e2e); keep them.
+  await page.getByPlaceholder('https://sso.eu.boxyhq.com/api/oauth/saml').fill(sp.acsUrl);
+  await page.getByPlaceholder('https://saml.boxyhq.com').fill(sp.entityId);
+  await page.getByPlaceholder('jackson').fill('alice');
   await page.getByLabel('Domain').selectOption('example.org');
   await page.getByRole('button', { name: 'Sign In' }).click();
 
