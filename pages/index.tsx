@@ -1,21 +1,23 @@
-import { GetServerSideProps } from 'next';
+import type { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 import Link from 'next/link';
-import React from 'react';
-import config from '../lib/env';
-import { IdPMetadata } from '../types';
+import config from 'lib/env';
 import { getEntityId, getSSOUrl } from 'lib/entity-id';
 import { namespacePath, parseNamespace } from 'lib/namespace';
 
-const Home: React.FC<{ metadata: IdPMetadata; params: any }> = ({ metadata, params }) => {
-  const namespace = params.namespace;
-  const { ssoUrl: appUrl, entityId, certificate } = metadata;
-  const namespaceEntityId = getEntityId(entityId, namespace);
+const buttonClass =
+  'inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary-ring';
+const primaryButtonClass = `${buttonClass} bg-primary text-white hover:bg-primary-hover`;
+const outlineButtonClass = `${buttonClass} border border-primary text-primary hover:bg-primary-soft`;
+const readOnlyClass = 'w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 text-sm text-gray-700';
+const labelClass = 'mb-1 block text-sm font-medium text-gray-700';
 
-  const metadataUrl = `/api${namespacePath(namespace)}/saml/metadata`;
-  const metadataDownloadUrl = `${metadataUrl}?download=true`;
-  const loginUrl = `${namespacePath(namespace)}/saml/login`;
-  const ssoUrl = getSSOUrl(appUrl, namespace);
-
+export default function Home({
+  ssoUrl,
+  entityId,
+  certificate,
+  metadataUrl,
+  loginUrl,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <div className='flex min-h-screen justify-center bg-white pt-12'>
       <div className='w-full max-w-4xl px-2 space-y-6'>
@@ -26,32 +28,16 @@ const Home: React.FC<{ metadata: IdPMetadata; params: any }> = ({ metadata, para
         {/* Actions */}
         <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
           <div className='flex flex-col gap-3 md:flex-row'>
-            <Link
-              href={metadataDownloadUrl}
-              className='inline-flex items-center justify-center rounded-md
-             bg-primary px-4 py-2 text-sm font-semibold text-white
-             hover:bg-primary-hover
-             focus:outline-none focus:ring-2 focus:ring-primary-ring'>
+            <Link href={`${metadataUrl}?download=true`} className={primaryButtonClass}>
               Download Metadata
             </Link>
 
-            <Link
-              href={metadataUrl}
-              target='_blank'
-              className='inline-flex items-center justify-center rounded-md
-             border border-primary px-4 py-2 text-sm font-semibold
-             text-primary hover:bg-primary-soft
-             focus:outline-none focus:ring-2 focus:ring-primary-ring'>
+            <Link href={metadataUrl} target='_blank' className={outlineButtonClass}>
               Metadata URL
             </Link>
           </div>
 
-          <Link
-            href={loginUrl}
-            className='inline-flex items-center justify-center rounded-md
-             border border-primary px-4 py-2 text-sm font-semibold
-             text-primary hover:bg-primary-soft
-             focus:outline-none focus:ring-2 focus:ring-primary-ring'>
+          <Link href={loginUrl} className={outlineButtonClass}>
             Test IdP Login
           </Link>
         </div>
@@ -61,40 +47,28 @@ const Home: React.FC<{ metadata: IdPMetadata; params: any }> = ({ metadata, para
           <h2 className='mb-5 text-center text-2xl font-semibold text-gray-900'>Mock SAML Metadata</h2>
           <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
             <div>
-              <label htmlFor='ssoUrl' className='block mb-1 text-sm font-medium text-gray-700'>
+              <label htmlFor='ssoUrl' className={labelClass}>
                 SSO URL
               </label>
-              <input
-                id='ssoUrl'
-                type='text'
-                defaultValue={ssoUrl}
-                disabled
-                className='w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 text-sm text-gray-700'
-              />
+              <input id='ssoUrl' type='text' defaultValue={ssoUrl} disabled className={readOnlyClass} />
             </div>
 
             <div>
-              <label htmlFor='entityId' className='block mb-1 text-sm font-medium text-gray-700'>
+              <label htmlFor='entityId' className={labelClass}>
                 Entity ID
               </label>
-              <input
-                id='entityId'
-                type='text'
-                defaultValue={namespaceEntityId}
-                disabled
-                className='w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 text-sm text-gray-700'
-              />
+              <input id='entityId' type='text' defaultValue={entityId} disabled className={readOnlyClass} />
             </div>
 
             <div className='md:col-span-2'>
-              <label htmlFor='certificate' className='block mb-1 text-sm font-medium text-gray-700'>
+              <label htmlFor='certificate' className={labelClass}>
                 Certificate
               </label>
               <textarea
                 id='certificate'
                 defaultValue={certificate}
                 disabled
-                className='h-48 w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 text-sm font-mono text-gray-700'
+                className={`${readOnlyClass} h-48 font-mono`}
               />
             </div>
           </div>
@@ -107,25 +81,23 @@ const Home: React.FC<{ metadata: IdPMetadata; params: any }> = ({ metadata, para
       </div>
     </div>
   );
-};
+}
 
-export const getServerSideProps: GetServerSideProps = async ({ params }) => {
-  if (!parseNamespace(params ?? {}).ok) {
+export const getServerSideProps = (async ({ params }) => {
+  const parsed = parseNamespace(params ?? {});
+  if (!parsed.ok) {
     return { notFound: true };
   }
 
-  const metadata: IdPMetadata = {
-    ssoUrl: config.appUrl,
-    entityId: config.entityId,
-    certificate: config.publicKey,
-  };
+  const { namespace } = parsed;
 
   return {
     props: {
-      metadata,
-      params: params ?? {},
+      ssoUrl: getSSOUrl(config.appUrl, namespace),
+      entityId: getEntityId(config.entityId, namespace),
+      certificate: config.publicKey,
+      metadataUrl: `/api${namespacePath(namespace)}/saml/metadata`,
+      loginUrl: `${namespacePath(namespace)}/saml/login`,
     },
   };
-};
-
-export default Home;
+}) satisfies GetServerSideProps;
