@@ -1,16 +1,34 @@
+import type { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import type { FormEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
+import { hasWildcard } from 'lib/allowed-domains';
 
-export default function Login() {
+type LoginProps = { allowedDomains: string[]; freeTextDomain: boolean };
+
+export const getServerSideProps: GetServerSideProps<LoginProps> = async () => {
+  const { default: config } = await import('lib/env');
+
+  return {
+    props: {
+      allowedDomains: config.allowedEmailDomains,
+      freeTextDomain: hasWildcard(config.allowedEmailDomains),
+    },
+  };
+};
+
+export default function Login({ allowedDomains, freeTextDomain }: LoginProps) {
   const router = useRouter();
-  const { id, audience, acsUrl, providerName, relayState, namespace } = router.query;
+  const { id, audience, acsUrl, providerName, relayState, namespace, email } = router.query;
+  const [prefillUser, prefillDomain] = splitEmail(email);
+  const acceptedPrefillDomain =
+    prefillDomain && (freeTextDomain || allowedDomains.includes(prefillDomain)) ? prefillDomain : undefined;
 
   const authUrl = namespace ? `/api/namespace/${namespace}/saml/auth` : '/api/saml/auth';
   const [state, setState] = useState({
-    username: 'jackson',
-    domain: 'example.com',
+    username: prefillUser ?? 'jackson',
+    domain: acceptedPrefillDomain ?? allowedDomains.find((d) => !d.startsWith('*')) ?? '',
     acsUrl: 'https://sso.eu.boxyhq.com/api/oauth/saml',
     audience: 'https://saml.boxyhq.com',
   });
@@ -129,15 +147,31 @@ export default function Login() {
 
                 <div>
                   <label className='block mb-1 text-sm font-medium text-gray-700'>Domain</label>
-                  <select
-                    name='domain'
-                    id='domain'
-                    value={state.domain}
-                    onChange={handleChange}
-                    className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'>
-                    <option value='example.com'>@example.com</option>
-                    <option value='example.org'>@example.org</option>
-                  </select>
+                  {freeTextDomain ? (
+                    <input
+                      name='domain'
+                      id='domain'
+                      type='text'
+                      autoComplete='off'
+                      value={state.domain}
+                      onChange={handleChange}
+                      placeholder='example.com'
+                      className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
+                    />
+                  ) : (
+                    <select
+                      name='domain'
+                      id='domain'
+                      value={state.domain}
+                      onChange={handleChange}
+                      className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'>
+                      {allowedDomains.map((d) => (
+                        <option key={d} value={d}>
+                          @{d}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
 
                 <div className='col-span-2'>
@@ -165,12 +199,19 @@ export default function Login() {
           <div className='rounded-md border border-blue-200 bg-blue-50 p-4'>
             <p className='text-sm text-blue-900'>
               This is a simulated login screen. You may choose any username, but only the domains{' '}
-              <code className='font-mono'>example.com</code> and{' '}
-              <code className='font-mono'>example.org</code> are allowed.
+              <code className='font-mono'>{allowedDomains.join(', ')}</code> are allowed.
             </p>
           </div>
         </div>
       </div>
     </>
   );
+}
+
+function splitEmail(email: string | string[] | undefined): [string?, string?] {
+  if (typeof email !== 'string') {
+    return [];
+  }
+  const at = email.lastIndexOf('@');
+  return at < 0 ? [email] : [email.slice(0, at), email.slice(at + 1)];
 }

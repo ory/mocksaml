@@ -4,13 +4,15 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import type { User } from 'types';
 import saml from '@boxyhq/saml20';
 import { getEntityId } from 'lib/entity-id';
+import { isAllowedEmail } from 'lib/allowed-domains';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     const { email, audience, acsUrl, id, relayState } = req.body;
 
-    if (!email.endsWith('@example.com') && !email.endsWith('@example.org')) {
+    if (typeof email !== 'string' || !isAllowedEmail(email, config.allowedEmailDomains)) {
       res.status(403).send(`${email} denied access`);
+      return;
     }
 
     const userId = createHash('sha256').update(email).digest('hex');
