@@ -2,7 +2,7 @@ import type { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import type { FormEvent } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { hasWildcard } from 'lib/allowed-domains';
 
 type LoginProps = { allowedDomains: string[]; freeTextDomain: boolean };
@@ -33,10 +33,19 @@ export default function Login({ allowedDomains, freeTextDomain }: LoginProps) {
     audience: 'https://saml.boxyhq.com',
   });
 
+  const hydrated = useSyncExternalStore(
+    subscribeNever,
+    () => true,
+    () => false
+  );
+
   const acsUrlInp = useRef<HTMLInputElement>(null);
   const emailInp = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    if (!hydrated) {
+      return;
+    }
     if (acsUrl && emailInp.current) {
       emailInp.current.focus();
       emailInp.current.select();
@@ -44,7 +53,7 @@ export default function Login({ allowedDomains, freeTextDomain }: LoginProps) {
       acsUrlInp.current.focus();
       acsUrlInp.current.select();
     }
-  }, [acsUrl]);
+  }, [acsUrl, hydrated]);
 
   const handleChange = (e: FormEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.currentTarget;
@@ -93,7 +102,8 @@ export default function Login({ allowedDomains, freeTextDomain }: LoginProps) {
             </h2>
 
             <form onSubmit={handleSubmit}>
-              <div className='grid grid-cols-2 gap-x-5 gap-y-3'>
+              {/* Until hydration, typed input would not reach React state and a click would submit the form natively. */}
+              <fieldset disabled={!hydrated} className='grid grid-cols-2 gap-x-5 gap-y-3'>
                 {!acsUrl && (
                   <div className='col-span-2 space-y-3'>
                     <div>
@@ -191,7 +201,7 @@ export default function Login({ allowedDomains, freeTextDomain }: LoginProps) {
                   className='col-span-2 mt-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary/40'>
                   Sign In
                 </button>
-              </div>
+              </fieldset>
             </form>
           </div>
 
@@ -207,6 +217,8 @@ export default function Login({ allowedDomains, freeTextDomain }: LoginProps) {
     </>
   );
 }
+
+const subscribeNever = () => () => {};
 
 function splitEmail(email: string | string[] | undefined): [string?, string?] {
   if (typeof email !== 'string') {
