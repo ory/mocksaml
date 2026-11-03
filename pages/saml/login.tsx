@@ -2,8 +2,9 @@ import type { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import type { FormEvent } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useSyncExternalStore } from 'react';
 import { hasWildcard } from 'lib/allowed-domains';
+import { authRequestBody, defaultAcsUrl, defaultAudience } from 'lib/auth-request';
 
 type LoginProps = { allowedDomains: string[]; freeTextDomain: boolean };
 
@@ -20,18 +21,19 @@ export const getServerSideProps: GetServerSideProps<LoginProps> = async () => {
 
 export default function Login({ allowedDomains, freeTextDomain }: LoginProps) {
   const router = useRouter();
-  const { id, audience, acsUrl, providerName, relayState, namespace, email } = router.query;
+  const { acsUrl, namespace, email } = router.query;
   const [prefillUser, prefillDomain] = splitEmail(email);
   const acceptedPrefillDomain =
     prefillDomain && (freeTextDomain || allowedDomains.includes(prefillDomain)) ? prefillDomain : undefined;
 
   const authUrl = namespace ? `/api/namespace/${namespace}/saml/auth` : '/api/saml/auth';
-  const [state, setState] = useState({
+  const defaults = {
     username: prefillUser ?? 'jackson',
     domain: acceptedPrefillDomain ?? allowedDomains.find((d) => !d.startsWith('*')) ?? '',
-    acsUrl: 'https://sso.eu.boxyhq.com/api/oauth/saml',
-    audience: 'https://saml.boxyhq.com',
-  });
+    acsUrl: defaultAcsUrl,
+    audience: defaultAudience,
+  };
+  const hydrated = useHydrated();
 
   const acsUrlInp = useRef<HTMLInputElement>(null);
   const emailInp = useRef<HTMLInputElement>(null);
@@ -46,27 +48,14 @@ export default function Login({ allowedDomains, freeTextDomain }: LoginProps) {
     }
   }, [acsUrl]);
 
-  const handleChange = (e: FormEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.currentTarget;
-    setState({ ...state, [name]: value });
-  };
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const { username, domain } = state;
-
+    // The inputs are uncontrolled and read from the form, so text typed before hydration is what gets sent.
     const response = await fetch(authUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: `${username}@${domain}`,
-        id,
-        audience: audience || state.audience,
-        acsUrl: acsUrl || state.acsUrl,
-        providerName,
-        relayState,
-      }),
+      body: JSON.stringify(authRequestBody(new FormData(e.currentTarget), router.query)),
     });
 
     if (response.ok) {
@@ -104,8 +93,7 @@ export default function Login({ allowedDomains, freeTextDomain }: LoginProps) {
                         id='acsUrl'
                         type='text'
                         autoComplete='off'
-                        value={state.acsUrl}
-                        onChange={handleChange}
+                        defaultValue={defaults.acsUrl}
                         placeholder='https://sso.eu.boxyhq.com/api/oauth/saml'
                         className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
                       />
@@ -121,8 +109,7 @@ export default function Login({ allowedDomains, freeTextDomain }: LoginProps) {
                         id='audience'
                         type='text'
                         autoComplete='off'
-                        value={state.audience}
-                        onChange={handleChange}
+                        defaultValue={defaults.audience}
                         placeholder='https://saml.boxyhq.com'
                         className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
                       />
@@ -138,8 +125,7 @@ export default function Login({ allowedDomains, freeTextDomain }: LoginProps) {
                     id='username'
                     type='text'
                     autoComplete='off'
-                    value={state.username}
-                    onChange={handleChange}
+                    defaultValue={defaults.username}
                     placeholder='jackson'
                     className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
                   />
@@ -153,8 +139,7 @@ export default function Login({ allowedDomains, freeTextDomain }: LoginProps) {
                       id='domain'
                       type='text'
                       autoComplete='off'
-                      value={state.domain}
-                      onChange={handleChange}
+                      defaultValue={defaults.domain}
                       placeholder='example.com'
                       className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
                     />
@@ -162,8 +147,7 @@ export default function Login({ allowedDomains, freeTextDomain }: LoginProps) {
                     <select
                       name='domain'
                       id='domain'
-                      value={state.domain}
-                      onChange={handleChange}
+                      defaultValue={defaults.domain}
                       className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'>
                       {allowedDomains.map((d) => (
                         <option key={d} value={d}>
@@ -186,8 +170,10 @@ export default function Login({ allowedDomains, freeTextDomain }: LoginProps) {
                   <p className='mt-1 text-xs text-gray-500'>Any password works</p>
                 </div>
 
+                {/* Until hydration a click would submit the form natively and drop the SAML request. */}
                 <button
                   type='submit'
+                  disabled={!hydrated}
                   className='col-span-2 mt-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary/40'>
                   Sign In
                 </button>
@@ -205,6 +191,16 @@ export default function Login({ allowedDomains, freeTextDomain }: LoginProps) {
         </div>
       </div>
     </>
+  );
+}
+
+const subscribeNever = () => () => {};
+
+function useHydrated() {
+  return useSyncExternalStore(
+    subscribeNever,
+    () => true,
+    () => false
   );
 }
 
