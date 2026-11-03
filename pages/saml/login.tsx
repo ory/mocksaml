@@ -22,11 +22,13 @@ export default function Login({ allowedDomains, freeTextDomain }: LoginProps) {
   const router = useRouter();
   const { id, audience, acsUrl, providerName, relayState, namespace, email } = router.query;
   const [prefillUser, prefillDomain] = splitEmail(email);
+  const acceptedPrefillDomain =
+    prefillDomain && (freeTextDomain || allowedDomains.includes(prefillDomain)) ? prefillDomain : undefined;
 
   const authUrl = namespace ? `/api/namespace/${namespace}/saml/auth` : '/api/saml/auth';
   const [state, setState] = useState({
     username: prefillUser ?? 'jackson',
-    domain: prefillDomain ?? allowedDomains.find((d) => !d.startsWith('*')) ?? 'example.com',
+    domain: acceptedPrefillDomain ?? allowedDomains.find((d) => !d.startsWith('*')) ?? '',
     acsUrl: 'https://sso.eu.boxyhq.com/api/oauth/saml',
     audience: 'https://saml.boxyhq.com',
   });
