@@ -15,8 +15,10 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
   projects: [{ name: 'chromium', use: { browserName: 'chromium' } }],
+  // Production build so the DOM matches what the mocksaml.com synthetic monitor sees.
   webServer: {
-    command: `npx next dev -p ${port}`,
+    command: `npx next build && npx next start -p ${port}`,
+    timeout: 180_000,
     url: `http://localhost:${port}/api/health`,
     reuseExistingServer: !process.env.CI,
     env: {
