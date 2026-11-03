@@ -8,6 +8,7 @@
     "dev": "next dev --webpack -p 4000",
     "build": "next build --webpack",
     "start": "next start -p 4000",
+    "test": "node --import tsx --test lib/*.test.ts",
     "lint": "eslint -c eslint.config.cjs ./",
     "check-format": "prettier --check .",
     "format": "prettier --write .",
@@ -36,6 +37,7 @@
     "prettier-plugin-tailwindcss": "0.8.1",
     "release-it": "21.1.2",
     "tailwindcss": "4.3.3",
+    "tsx": "4.23.15",
     "typescript": "6.0.3"
   },
   "engines": {

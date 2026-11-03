@@ -1,3 +1,1 @@
-import Login from '../../../saml/login';
-
-export default Login;
+export { default, getServerSideProps } from '../../../saml/login';
