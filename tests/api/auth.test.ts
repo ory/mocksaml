@@ -45,6 +45,14 @@ describe('POST /api/saml/auth', () => {
     assert.equal(profile.claims.email, 'alice@example.org');
   });
 
+  it('rejects a username containing @', async () => {
+    const { req, res } = login({ username: 'alice@example.org', domain: 'example.com' });
+    await handler(req, res);
+
+    assert.equal(res._getStatusCode(), 400);
+    assert.doesNotMatch(res._getData(), /SAMLResponse/);
+  });
+
   it('omits RelayState from the form when there is none', async () => {
     const { req, res } = login({ email: 'jackson@example.com' });
     await handler(req, res);

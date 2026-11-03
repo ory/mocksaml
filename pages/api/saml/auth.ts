@@ -20,6 +20,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const { username, domain, audience, acsUrl, id, relayState } = req.body;
+
+    if (typeof username === 'string' && username.includes('@')) {
+      return res.status(400).send('username must not contain @');
+    }
+
     const email: unknown = req.body.email ?? (username && domain ? `${username}@${domain}` : undefined);
 
     if (typeof email !== 'string' || !email) {

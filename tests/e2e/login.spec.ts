@@ -71,3 +71,29 @@ test('Sign In button matches the synthetic monitor locators', async ({ page }) =
     await expect(locator).toHaveText('Sign In');
   }
 });
+
+test('SP-initiated link without an audience falls back to the default', async ({ page }) => {
+  const acsPost = captureAcsPost(page);
+
+  await page.goto(`/saml/login?acsUrl=${encodeURIComponent(sp.acsUrl)}`);
+  await expect(page.locator('input[name="acsUrl"]')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Sign In' }).click();
+
+  const { samlResponse } = await acsPost;
+  const profile = await validateResponse(samlResponse, { audience: 'https://saml.boxyhq.com' });
+  expect(profile.audience).toBe('https://saml.boxyhq.com');
+});
+
+test('IdP-initiated form with an empty acsUrl param posts a single acsUrl', async ({ page }) => {
+  const acsPost = captureAcsPost(page);
+
+  await page.goto('/saml/login?acsUrl=');
+  await expect(page.locator('input[name="acsUrl"]')).toHaveCount(1);
+  await page.getByPlaceholder('https://sso.eu.boxyhq.com/api/oauth/saml').fill(sp.acsUrl);
+  await page.getByPlaceholder('https://saml.boxyhq.com').fill(sp.entityId);
+  await page.getByRole('button', { name: 'Sign In' }).click();
+
+  const { samlResponse } = await acsPost;
+  await expect(page.getByText('ACS received')).toBeVisible();
+  expect((await validateResponse(samlResponse)).claims.email).toBe('jackson@example.com');
+});

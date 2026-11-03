@@ -23,5 +23,5 @@ export const captureAcsPost = async (page: Page) => {
   return posted;
 };
 
-export const validateResponse = (xml: string, options: { inResponseTo?: string } = {}) =>
+export const validateResponse = (xml: string, options: { inResponseTo?: string; audience?: string } = {}) =>
   saml.validate(xml, { publicKey: idpCert, audience: sp.entityId, recipient: sp.acsUrl, ...options });

@@ -10,6 +10,9 @@ const inputClass =
   'w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30';
 const labelClass = 'mb-1 block text-sm font-medium text-gray-700';
 
+const defaultAcsUrl = 'https://sso.eu.boxyhq.com/api/oauth/saml';
+const defaultAudience = 'https://saml.boxyhq.com';
+
 const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
 
 const splitEmail = (email: string | undefined): [string?, string?] => {
@@ -34,9 +37,12 @@ export default function Login({
       : (allowedDomains.find((d) => !d.startsWith('*')) ?? '');
 
   const authUrl = namespace ? `/api/namespace/${namespace}/saml/auth` : '/api/saml/auth';
-  const hidden = ['id', 'audience', 'acsUrl', 'providerName', 'relayState']
-    .map((name) => [name, first(router.query[name])] as const)
-    .filter(([, value]) => value !== undefined);
+  const hidden = Object.entries({
+    id: first(router.query.id),
+    providerName: first(router.query.providerName),
+    relayState: first(router.query.relayState),
+    ...(spInitiated && { acsUrl, audience: first(router.query.audience) || defaultAudience }),
+  }).filter((entry): entry is [string, string] => Boolean(entry[1]));
 
   const acsUrlInp = useRef<HTMLInputElement>(null);
   const emailInp = useRef<HTMLInputElement>(null);
@@ -79,8 +85,8 @@ export default function Login({
                         type='url'
                         required
                         autoComplete='off'
-                        defaultValue='https://sso.eu.boxyhq.com/api/oauth/saml'
-                        placeholder='https://sso.eu.boxyhq.com/api/oauth/saml'
+                        defaultValue={defaultAcsUrl}
+                        placeholder={defaultAcsUrl}
                         className={inputClass}
                       />
                       <p className='mt-1 text-xs text-gray-500'>
@@ -98,8 +104,8 @@ export default function Login({
                         type='text'
                         required
                         autoComplete='off'
-                        defaultValue='https://saml.boxyhq.com'
-                        placeholder='https://saml.boxyhq.com'
+                        defaultValue={defaultAudience}
+                        placeholder={defaultAudience}
                         className={inputClass}
                       />
                     </div>
@@ -116,6 +122,8 @@ export default function Login({
                     id='username'
                     type='text'
                     required
+                    pattern='[^@]+'
+                    title='Username only; the domain is selected separately'
                     autoComplete='off'
                     defaultValue={prefillUser ?? 'jackson'}
                     placeholder='jackson'
