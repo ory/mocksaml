@@ -1,19 +1,37 @@
-import type { GetServerSideProps } from 'next';
+import type { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useEffect, useRef } from 'react';
+import { hasWildcard } from 'lib/allowed-domains';
+import config from 'lib/env';
 import { parseNamespace } from 'lib/namespace';
 
 const inputClass =
   'w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30';
+const labelClass = 'mb-1 block text-sm font-medium text-gray-700';
 
 const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
 
-export default function Login() {
+const splitEmail = (email: string | undefined): [string?, string?] => {
+  if (!email) return [];
+  const at = email.lastIndexOf('@');
+  return at < 0 ? [email] : [email.slice(0, at), email.slice(at + 1)];
+};
+
+export default function Login({
+  allowedDomains,
+  freeTextDomain,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
   const namespace = first(router.query.namespace);
   const acsUrl = first(router.query.acsUrl);
   const spInitiated = Boolean(acsUrl);
+
+  const [prefillUser, prefillDomain] = splitEmail(first(router.query.email));
+  const defaultDomain =
+    prefillDomain && (freeTextDomain || allowedDomains.includes(prefillDomain))
+      ? prefillDomain
+      : (allowedDomains.find((d) => !d.startsWith('*')) ?? '');
 
   const authUrl = namespace ? `/api/namespace/${namespace}/saml/auth` : '/api/saml/auth';
   const hidden = ['id', 'audience', 'acsUrl', 'providerName', 'relayState']
@@ -51,7 +69,7 @@ export default function Login() {
                 {!spInitiated && (
                   <div className='col-span-2 space-y-3'>
                     <div>
-                      <label htmlFor='acsUrl' className='mb-1 block text-sm font-medium text-gray-700'>
+                      <label htmlFor='acsUrl' className={labelClass}>
                         ACS URL
                       </label>
                       <input
@@ -71,7 +89,7 @@ export default function Login() {
                     </div>
 
                     <div>
-                      <label htmlFor='audience' className='mb-1 block text-sm font-medium text-gray-700'>
+                      <label htmlFor='audience' className={labelClass}>
                         Audience
                       </label>
                       <input
@@ -89,7 +107,7 @@ export default function Login() {
                 )}
 
                 <div>
-                  <label htmlFor='username' className='mb-1 block text-sm font-medium text-gray-700'>
+                  <label htmlFor='username' className={labelClass}>
                     Email
                   </label>
                   <input
@@ -99,24 +117,40 @@ export default function Login() {
                     type='text'
                     required
                     autoComplete='off'
-                    defaultValue='jackson'
+                    defaultValue={prefillUser ?? 'jackson'}
                     placeholder='jackson'
                     className={inputClass}
                   />
                 </div>
 
                 <div>
-                  <label htmlFor='domain' className='mb-1 block text-sm font-medium text-gray-700'>
+                  <label htmlFor='domain' className={labelClass}>
                     Domain
                   </label>
-                  <select name='domain' id='domain' defaultValue='example.com' className={inputClass}>
-                    <option value='example.com'>@example.com</option>
-                    <option value='example.org'>@example.org</option>
-                  </select>
+                  {freeTextDomain ? (
+                    <input
+                      name='domain'
+                      id='domain'
+                      type='text'
+                      required
+                      autoComplete='off'
+                      defaultValue={defaultDomain}
+                      placeholder='example.com'
+                      className={inputClass}
+                    />
+                  ) : (
+                    <select name='domain' id='domain' defaultValue={defaultDomain} className={inputClass}>
+                      {allowedDomains.map((d) => (
+                        <option key={d} value={d}>
+                          @{d}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
 
                 <div className='col-span-2'>
-                  <label htmlFor='password' className='mb-1 block text-sm font-medium text-gray-700'>
+                  <label htmlFor='password' className={labelClass}>
                     Password
                   </label>
                   <input
@@ -141,8 +175,7 @@ export default function Login() {
           <div className='rounded-md border border-blue-200 bg-blue-50 p-4'>
             <p className='text-sm text-blue-900'>
               This is a simulated login screen. You may choose any username, but only the domains{' '}
-              <code className='font-mono'>example.com</code> and{' '}
-              <code className='font-mono'>example.org</code> are allowed.
+              <code className='font-mono'>{allowedDomains.join(', ')}</code> are allowed.
             </p>
           </div>
         </div>
@@ -157,5 +190,10 @@ export const getServerSideProps = (async ({ params }) => {
     return { notFound: true };
   }
 
-  return { props: {} };
+  return {
+    props: {
+      allowedDomains: config.allowedEmailDomains,
+      freeTextDomain: hasWildcard(config.allowedEmailDomains),
+    },
+  };
 }) satisfies GetServerSideProps;

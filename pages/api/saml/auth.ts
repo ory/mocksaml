@@ -2,6 +2,7 @@ import { createHash } from 'crypto';
 import config from 'lib/env';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import saml from '@boxyhq/saml20';
+import { isAllowedEmail } from 'lib/allowed-domains';
 import { getEntityId, parseNamespace } from 'lib/namespace';
 
 type User = {
@@ -25,8 +26,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).send('email is required');
     }
 
-    if (!email.endsWith('@example.com') && !email.endsWith('@example.org')) {
-      return res.status(403).send('Only example.com and example.org emails are allowed');
+    if (!isAllowedEmail(email, config.allowedEmailDomains)) {
+      return res.status(403).send(`Only ${config.allowedEmailDomains.join(', ')} emails are allowed`);
     }
 
     const userId = createHash('sha256').update(email).digest('hex');
