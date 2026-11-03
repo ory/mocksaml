@@ -29,6 +29,8 @@ Refer to [env.example](https://github.com/boxyhq/mock-saml/blob/main/.env.exampl
 Replace `<PUBLIC_KEY>` with Base64 encoded value of public key.
 Replace `<PRIVATE_KEY>` with Base64 encoded value of private key.
 
+Set `ALLOWED_EMAIL_DOMAINS` to a comma-separated list to control which email domains can sign in. An entry is an exact domain (`example.com`), a subdomain wildcard (`*.ory.dev` matches `abc.ory.dev` but not `ory.dev`), or `*` for any domain. The default is `example.com,example.org`. When the list contains a wildcard, the login form shows a free-text domain field. The login page also accepts `?email=user@domain` to prefill the form.
+
 ### Without Docker
 
 ```
