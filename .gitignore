@@ -34,8 +34,10 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+next-env.d.ts
 
 .env
 key.pem
 public.crt
 .vscode
+.idea

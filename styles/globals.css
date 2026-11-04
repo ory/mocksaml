@@ -1,11 +1,6 @@
 /* globals.css */
 @import 'tailwindcss';
 
-/* Tailwind base, components, utilities */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 @theme {
   /* Brand */
   --color-primary: oklch(51.1% 0.262 276.966);
@@ -35,5 +30,3 @@ body {
   outline-offset: 2px;
   ring-offset-width: 2px;
 }
-
-/* You can define custom colors directly in tailwind.config.js instead of here */

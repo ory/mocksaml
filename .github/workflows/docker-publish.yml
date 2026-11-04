@@ -24,11 +24,11 @@ jobs:
         uses: actions/checkout@v7
 
       - run: |
-          npm install
+          npm ci
 
           IMAGE_PATH=boxyhq/mock-saml
           echo "IMAGE_PATH=${IMAGE_PATH}" >> $GITHUB_OUTPUT
-          MOCK_SAML_VERSION=$(echo $(cat ./package.json) | ./node_modules/json/lib/json.js version)
+          MOCK_SAML_VERSION=$(node -p "require('./package.json').version")
           echo "NPMVERSION=$(echo ${MOCK_SAML_VERSION})" >> $GITHUB_OUTPUT
         id: npmversion
 
