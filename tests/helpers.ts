@@ -31,13 +31,15 @@ export const buildAuthnRequest = (opts: { signed?: boolean; providerName?: strin
     publicKey: opts.signed === false ? '' : spCert,
   });
 
-  return {
-    id,
-    xml: request,
-    post: Buffer.from(request).toString('base64'),
-    redirect: deflateRawSync(request).toString('base64'),
-  };
+  return encode(id, request);
 };
+
+export const encode = (id: string, xml: string) => ({
+  id,
+  xml,
+  post: Buffer.from(xml).toString('base64'),
+  redirect: deflateRawSync(xml).toString('base64'),
+});
 
 export const extractSamlResponse = (html: string) => {
   const match = html.match(/name="SAMLResponse"\s+value="([^"]+)"/);

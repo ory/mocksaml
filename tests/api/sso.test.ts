@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it, mock } from 'node:test';
 import handler from 'pages/api/saml/sso';
-import { buildAuthnRequest, mockApi, sp } from '../helpers';
+import { buildAuthnRequest, encode, mockApi, sp } from '../helpers';
 
 const redirectParams = (res: ReturnType<typeof mockApi>['res']) => {
   const url = new URL(res._getRedirectUrl(), 'https://idp.test');
@@ -41,13 +41,28 @@ describe('/api/saml/sso', () => {
     assert.equal(params.get('relayState'), 'state-456');
   });
 
-  it('rejects an unsigned POST request', async () => {
-    mock.method(console, 'error', () => {});
+  it('accepts an unsigned POST request, as the metadata advertises', async () => {
     const authn = buildAuthnRequest({ signed: false });
     const { req, res } = mockApi({ method: 'POST', body: { SAMLRequest: authn.post } });
     await handler(req, res);
 
-    assert.equal(res._getStatusCode(), 400);
+    assert.equal(res._getStatusCode(), 302);
+    assert.equal(redirectParams(res).params.get('id'), authn.id);
+  });
+
+  it('rejects a request whose signature does not verify', async () => {
+    mock.method(console, 'error', () => {});
+    const signed = buildAuthnRequest({ providerName: 'Acme' });
+    const tampered = encode(signed.id, signed.xml.replace('ProviderName="Acme"', 'ProviderName="Mallory"'));
+
+    for (const [method, options] of [
+      ['POST', { body: { SAMLRequest: tampered.post } }],
+      ['GET', { query: { SAMLRequest: tampered.redirect } }],
+    ] as const) {
+      const { req, res } = mockApi({ method, ...options });
+      await handler(req, res);
+      assert.equal(res._getStatusCode(), 400, method);
+    }
   });
 
   it('rejects garbage without leaking the error', async () => {

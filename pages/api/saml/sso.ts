@@ -35,12 +35,12 @@ async function processSAMLRequest(req: NextApiRequest, res: NextApiResponse, isP
   try {
     const rawRequest = await saml.decodeBase64(samlRequest, isDeflated);
 
-    const { id, audience, acsUrl, providerName, publicKey } = await saml.parseSAMLRequest(rawRequest, isPost);
+    // Signatures are optional (the metadata says WantAuthnRequestsSigned="false"); there is no SP
+    // registry to verify against, so a present signature is only checked against its embedded cert.
+    const { id, audience, acsUrl, providerName, publicKey } = await saml.parseSAMLRequest(rawRequest, false);
 
-    if (isPost) {
-      if (!saml.validateSignature(rawRequest, publicKey, null)) {
-        throw new Error('Invalid signature');
-      }
+    if (publicKey && !saml.validateSignature(rawRequest, publicKey, null)) {
+      throw new Error('Invalid signature');
     }
 
     const params = new URLSearchParams({ id, audience, acsUrl, providerName });
