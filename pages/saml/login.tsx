@@ -1,91 +1,57 @@
-import type { GetServerSideProps } from 'next';
+import type { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import type { FormEvent } from 'react';
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef } from 'react';
 import { hasWildcard } from 'lib/allowed-domains';
+import config from 'lib/env';
+import { parseNamespace } from 'lib/namespace';
 
-type LoginProps = { allowedDomains: string[]; freeTextDomain: boolean };
+const inputClass =
+  'w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30';
+const labelClass = 'mb-1 block text-sm font-medium text-gray-700';
 
-export const getServerSideProps: GetServerSideProps<LoginProps> = async () => {
-  const { default: config } = await import('lib/env');
+const defaultAcsUrl = 'https://sso.eu.boxyhq.com/api/oauth/saml';
+const defaultAudience = 'https://saml.boxyhq.com';
 
-  return {
-    props: {
-      allowedDomains: config.allowedEmailDomains,
-      freeTextDomain: hasWildcard(config.allowedEmailDomains),
-    },
-  };
+const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
+
+const splitEmail = (email: string | undefined): [string?, string?] => {
+  if (!email) return [];
+  const at = email.lastIndexOf('@');
+  return at < 0 ? [email] : [email.slice(0, at), email.slice(at + 1)];
 };
 
-export default function Login({ allowedDomains, freeTextDomain }: LoginProps) {
+export default function Login({
+  allowedDomains,
+  freeTextDomain,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
-  const { id, audience, acsUrl, providerName, relayState, namespace, email } = router.query;
-  const [prefillUser, prefillDomain] = splitEmail(email);
-  const acceptedPrefillDomain =
-    prefillDomain && (freeTextDomain || allowedDomains.includes(prefillDomain)) ? prefillDomain : undefined;
+  const namespace = first(router.query.namespace);
+  const acsUrl = first(router.query.acsUrl);
+  const spInitiated = Boolean(acsUrl);
+
+  const [prefillUser, prefillDomain] = splitEmail(first(router.query.email));
+  const defaultDomain =
+    prefillDomain && (freeTextDomain || allowedDomains.includes(prefillDomain))
+      ? prefillDomain
+      : (allowedDomains.find((d) => !d.startsWith('*')) ?? '');
 
   const authUrl = namespace ? `/api/namespace/${namespace}/saml/auth` : '/api/saml/auth';
-  const [state, setState] = useState({
-    username: prefillUser ?? 'jackson',
-    domain: acceptedPrefillDomain ?? allowedDomains.find((d) => !d.startsWith('*')) ?? '',
-    acsUrl: 'https://sso.eu.boxyhq.com/api/oauth/saml',
-    audience: 'https://saml.boxyhq.com',
-  });
-
-  const hydrated = useSyncExternalStore(
-    subscribeNever,
-    () => true,
-    () => false
-  );
+  const hidden = Object.entries({
+    id: first(router.query.id),
+    providerName: first(router.query.providerName),
+    relayState: first(router.query.relayState),
+    ...(spInitiated && { acsUrl, audience: first(router.query.audience) || defaultAudience }),
+  }).filter((entry): entry is [string, string] => Boolean(entry[1]));
 
   const acsUrlInp = useRef<HTMLInputElement>(null);
   const emailInp = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!hydrated) {
-      return;
-    }
-    if (acsUrl && emailInp.current) {
-      emailInp.current.focus();
-      emailInp.current.select();
-    } else if (acsUrlInp.current) {
-      acsUrlInp.current.focus();
-      acsUrlInp.current.select();
-    }
-  }, [acsUrl, hydrated]);
-
-  const handleChange = (e: FormEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.currentTarget;
-    setState({ ...state, [name]: value });
-  };
-
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const { username, domain } = state;
-
-    const response = await fetch(authUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: `${username}@${domain}`,
-        id,
-        audience: audience || state.audience,
-        acsUrl: acsUrl || state.acsUrl,
-        providerName,
-        relayState,
-      }),
-    });
-
-    if (response.ok) {
-      const newDoc = document.open('text/html', 'replace');
-      newDoc.write(await response.text());
-      newDoc.close();
-    } else {
-      document.write('Error in getting SAML response');
-    }
-  };
+    const target = spInitiated ? emailInp.current : acsUrlInp.current;
+    target?.focus();
+    target?.select();
+  }, [spInitiated]);
 
   return (
     <>
@@ -94,30 +60,34 @@ export default function Login({ allowedDomains, freeTextDomain }: LoginProps) {
       </Head>
 
       <div className='flex min-h-screen justify-center bg-white pt-12'>
-        <div className='w-full max-w-xl px-3 space-y-4'>
-          {/* Card */}
+        <div className='w-full max-w-xl space-y-4 px-3'>
           <div className='rounded-lg border border-gray-200 bg-white p-4 shadow-sm'>
             <h2 className='mb-6 text-center text-2xl font-semibold text-gray-900'>
-              {!acsUrl ? 'SAML IdP Login' : 'SAML SSO Login'}
+              {spInitiated ? 'SAML SSO Login' : 'SAML IdP Login'}
             </h2>
 
-            <form onSubmit={handleSubmit}>
-              {/* Until hydration, typed input would not reach React state and a click would submit the form natively. */}
-              <fieldset disabled={!hydrated} className='grid grid-cols-2 gap-x-5 gap-y-3'>
-                {!acsUrl && (
+            <form method='POST' action={authUrl}>
+              {hidden.map(([name, value]) => (
+                <input key={name} type='hidden' name={name} value={value} />
+              ))}
+
+              <div className='grid grid-cols-2 gap-x-5 gap-y-3'>
+                {!spInitiated && (
                   <div className='col-span-2 space-y-3'>
                     <div>
-                      <label className='block mb-1 text-sm font-medium text-gray-700'>ACS URL</label>
+                      <label htmlFor='acsUrl' className={labelClass}>
+                        ACS URL
+                      </label>
                       <input
                         ref={acsUrlInp}
                         name='acsUrl'
                         id='acsUrl'
-                        type='text'
+                        type='url'
+                        required
                         autoComplete='off'
-                        value={state.acsUrl}
-                        onChange={handleChange}
-                        placeholder='https://sso.eu.boxyhq.com/api/oauth/saml'
-                        className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
+                        defaultValue={defaultAcsUrl}
+                        placeholder={defaultAcsUrl}
+                        className={inputClass}
                       />
                       <p className='mt-1 text-xs text-gray-500'>
                         This is where we will post the SAML Response
@@ -125,56 +95,59 @@ export default function Login({ allowedDomains, freeTextDomain }: LoginProps) {
                     </div>
 
                     <div>
-                      <label className='block mb-1 text-sm font-medium text-gray-700'>Audience</label>
+                      <label htmlFor='audience' className={labelClass}>
+                        Audience
+                      </label>
                       <input
                         name='audience'
                         id='audience'
                         type='text'
+                        required
                         autoComplete='off'
-                        value={state.audience}
-                        onChange={handleChange}
-                        placeholder='https://saml.boxyhq.com'
-                        className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
+                        defaultValue={defaultAudience}
+                        placeholder={defaultAudience}
+                        className={inputClass}
                       />
                     </div>
                   </div>
                 )}
 
                 <div>
-                  <label className='block mb-1 text-sm font-medium text-gray-700'>Email</label>
+                  <label htmlFor='username' className={labelClass}>
+                    Email
+                  </label>
                   <input
                     ref={emailInp}
                     name='username'
                     id='username'
                     type='text'
+                    required
+                    pattern='[^@]+'
+                    title='Username only; the domain is selected separately'
                     autoComplete='off'
-                    value={state.username}
-                    onChange={handleChange}
+                    defaultValue={prefillUser ?? 'jackson'}
                     placeholder='jackson'
-                    className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
+                    className={inputClass}
                   />
                 </div>
 
                 <div>
-                  <label className='block mb-1 text-sm font-medium text-gray-700'>Domain</label>
+                  <label htmlFor='domain' className={labelClass}>
+                    Domain
+                  </label>
                   {freeTextDomain ? (
                     <input
                       name='domain'
                       id='domain'
                       type='text'
+                      required
                       autoComplete='off'
-                      value={state.domain}
-                      onChange={handleChange}
+                      defaultValue={defaultDomain}
                       placeholder='example.com'
-                      className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
+                      className={inputClass}
                     />
                   ) : (
-                    <select
-                      name='domain'
-                      id='domain'
-                      value={state.domain}
-                      onChange={handleChange}
-                      className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'>
+                    <select name='domain' id='domain' defaultValue={defaultDomain} className={inputClass}>
                       {allowedDomains.map((d) => (
                         <option key={d} value={d}>
                           @{d}
@@ -185,13 +158,15 @@ export default function Login({ allowedDomains, freeTextDomain }: LoginProps) {
                 </div>
 
                 <div className='col-span-2'>
-                  <label className='block mb-1 text-sm font-medium text-gray-700'>Password</label>
+                  <label htmlFor='password' className={labelClass}>
+                    Password
+                  </label>
                   <input
                     id='password'
                     type='password'
                     autoComplete='off'
                     defaultValue='samlstrongpassword'
-                    className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30'
+                    className={inputClass}
                   />
                   <p className='mt-1 text-xs text-gray-500'>Any password works</p>
                 </div>
@@ -201,11 +176,10 @@ export default function Login({ allowedDomains, freeTextDomain }: LoginProps) {
                   className='col-span-2 mt-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary/40'>
                   Sign In
                 </button>
-              </fieldset>
+              </div>
             </form>
           </div>
 
-          {/* Info box */}
           <div className='rounded-md border border-blue-200 bg-blue-50 p-4'>
             <p className='text-sm text-blue-900'>
               This is a simulated login screen. You may choose any username, but only the domains{' '}
@@ -218,12 +192,16 @@ export default function Login({ allowedDomains, freeTextDomain }: LoginProps) {
   );
 }
 
-const subscribeNever = () => () => {};
-
-function splitEmail(email: string | string[] | undefined): [string?, string?] {
-  if (typeof email !== 'string') {
-    return [];
+// Server-rendered so the SP-initiated form does not flash the IdP one first.
+export const getServerSideProps = (async ({ params }) => {
+  if (!parseNamespace(params ?? {}).ok) {
+    return { notFound: true };
   }
-  const at = email.lastIndexOf('@');
-  return at < 0 ? [email] : [email.slice(0, at), email.slice(at + 1)];
-}
+
+  return {
+    props: {
+      allowedDomains: config.allowedEmailDomains,
+      freeTextDomain: hasWildcard(config.allowedEmailDomains),
+    },
+  };
+}) satisfies GetServerSideProps;

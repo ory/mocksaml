@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import saml from '@boxyhq/saml20';
+import { namespacePath, parseNamespace } from 'lib/namespace';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<string>) {
   switch (req.method) {
@@ -13,6 +14,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 }
 
 async function processSAMLRequest(req: NextApiRequest, res: NextApiResponse, isPost: boolean) {
+  const parsed = parseNamespace(req.query);
+  if (!parsed.ok) {
+    return res.status(400).send('Invalid namespace');
+  }
+
   let samlRequest, relayState, isDeflated;
 
   if (isPost) {
@@ -22,8 +28,6 @@ async function processSAMLRequest(req: NextApiRequest, res: NextApiResponse, isP
   } else {
     relayState = req.query.RelayState;
     samlRequest = req.query.SAMLRequest;
-    // sigAlg = req.query.SigAlg;
-    // signature = req.query.Signature;
 
     isDeflated = true;
   }
@@ -31,22 +35,25 @@ async function processSAMLRequest(req: NextApiRequest, res: NextApiResponse, isP
   try {
     const rawRequest = await saml.decodeBase64(samlRequest, isDeflated);
 
-    const { id, audience, acsUrl, providerName, publicKey } = await saml.parseSAMLRequest(rawRequest, isPost);
+    // Signatures are optional (the metadata says WantAuthnRequestsSigned="false"); there is no SP
+    // registry to verify against, so a present signature is only checked against its embedded cert.
+    const { id, audience, acsUrl, providerName, publicKey } = await saml.parseSAMLRequest(rawRequest, false);
 
-    if (isPost) {
-      if (!saml.validateSignature(rawRequest, publicKey, null)) {
-        throw new Error('Invalid signature');
-      }
+    if (publicKey && !saml.validateSignature(rawRequest, publicKey, null)) {
+      throw new Error('Invalid signature');
     }
 
-    const params = new URLSearchParams({ id, audience, acsUrl, providerName, relayState });
+    const params = new URLSearchParams({ id, audience, acsUrl, providerName });
+    if (relayState) {
+      params.set('relayState', relayState);
+    }
 
-    const loginUrl = (req.query.namespace ? `/namespace/${req.query.namespace}` : '') + '/saml/login';
+    const loginUrl = `${namespacePath(parsed.namespace)}/saml/login`;
 
     res.redirect(302, `${loginUrl}?${params.toString()}`);
   } catch (err) {
     console.error(err);
 
-    res.status(500).send(`${err}`);
+    res.status(400).send('Invalid SAML request');
   }
 }

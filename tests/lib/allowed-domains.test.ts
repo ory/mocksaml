@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { hasWildcard, isAllowedEmail, parseAllowedDomains } from './allowed-domains.ts';
+import { hasWildcard, isAllowedEmail, parseAllowedDomains } from 'lib/allowed-domains';
 
 test('isAllowedEmail', () => {
   assert.equal(isAllowedEmail('a@example.com', ['example.com']), true);

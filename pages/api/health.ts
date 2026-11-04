@@ -1,18 +1,10 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { version } from '../../package.json';
 
-import packageInfo from '../../package.json';
-
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  try {
-    if (req.method !== 'GET') {
-      throw new Error('Method not allowed');
-    }
-
-    res.status(200).json({
-      version: packageInfo.version,
-    });
-  } catch (err: any) {
-    const { statusCode = 503 } = err;
-    res.status(statusCode).json({});
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'GET') {
+    return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
+
+  res.json({ version });
 }

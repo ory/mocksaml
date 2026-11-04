@@ -4,7 +4,7 @@ const prettier = require('eslint-config-prettier');
 
 module.exports = [
   {
-    ignores: ['.next/**', 'node_modules/**', 'dist/**', 'out/**', 'build/**', 'eslint.config.cjs', 'next-env.d.ts'],
+    ignores: ['.next/**', 'node_modules/**', 'tests/fixtures/**', 'dist/**', 'out/**', 'build/**', 'eslint.config.cjs', 'next-env.d.ts'],
   },
   js.configs.recommended,
   ...nextCoreWebVitals,

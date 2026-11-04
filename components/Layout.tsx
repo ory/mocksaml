@@ -15,11 +15,9 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <>
       <Head>
-        <meta charSet='utf-8' />
-        <meta name='viewport' content='width=device-width, initial-scale=1.0' />
         <title>{title}</title>
         <meta name='description' content={description} />
-        <meta name='author' content='BoxyHQ' />
+        <meta name='author' content='Ory' />
 
         <meta property='og:url' content={website} />
         <meta property='og:type' content='website' />
@@ -35,7 +33,7 @@ export default function Layout({ children }: LayoutProps) {
         <meta name='twitter:image' content={ogImage} />
       </Head>
       <Header />
-      <main className='h-[calc(100%-80px)] overflow-auto py-5'>{children}</main>
+      <main className='py-5'>{children}</main>
     </>
   );
 }

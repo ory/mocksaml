@@ -2,12 +2,12 @@ import Link from 'next/link';
 
 export default function Header() {
   return (
-    <header className='body-font border-b px-2 text-gray-600'>
+    <header className='border-b px-2 text-gray-600'>
       <div className='container mx-auto flex flex-col flex-wrap items-center justify-between space-y-2 py-3 md:flex-row'>
         <Link
           href='https://github.com/boxyhq/mock-saml'
           target='_blank'
-          className='title-font flex items-center font-medium text-gray-900 md:mb-0'>
+          className='flex items-center font-medium text-gray-900'>
           <svg
             xmlns='http://www.w3.org/2000/svg'
             fill='none'
@@ -21,16 +21,14 @@ export default function Header() {
           </svg>
           <span className='ml-3 text-2xl'>Mock SAML</span>
         </Link>
-        <div className='flex flex-col items-center space-y-2 md:flex-row md:space-y-0 md:space-x-2'>
-          <span>
-            <a
-              className='btn-outline btn-sm btn'
-              href='https://github.com/boxyhq/jackson'
-              rel='noopener noreferrer'
-              target='_blank'>
-              Integrate SAML with a few lines of code
-            </a>
-          </span>
+        <div className='flex flex-col items-center space-y-2 md:flex-row md:space-x-2 md:space-y-0'>
+          <a
+            className='rounded-md border border-primary px-3 py-1.5 text-sm font-semibold text-primary hover:bg-primary-soft'
+            href='https://github.com/ory/polis'
+            rel='noopener noreferrer'
+            target='_blank'>
+            Integrate SAML with a few lines of code
+          </a>
           <span>
             Made with <span className='text-red-500'>&#9829;</span>{' '}
             <a href='https://ory.com' rel='noopener noreferrer' target='_blank'>
