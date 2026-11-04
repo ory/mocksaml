@@ -5,6 +5,7 @@ import type { User } from 'types';
 import saml from '@boxyhq/saml20';
 import { getEntityId } from 'lib/entity-id';
 import { isAllowedEmail } from 'lib/allowed-domains';
+import { nameIdFor } from 'lib/name-id';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
@@ -34,6 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         email: user.email,
         raw: user,
       },
+      nameId: nameIdFor(config.nameIdFormat, user),
       privateKey: config.privateKey,
       publicKey: config.publicKey,
     });
