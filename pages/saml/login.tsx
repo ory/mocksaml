@@ -29,6 +29,7 @@ export default function Login({
   const namespace = first(router.query.namespace);
   const acsUrl = first(router.query.acsUrl);
   const spInitiated = Boolean(acsUrl);
+  const audience = first(router.query.audience) || defaultAudience;
 
   const [prefillUser, prefillDomain] = splitEmail(first(router.query.email));
   const defaultDomain =
@@ -41,7 +42,7 @@ export default function Login({
     id: first(router.query.id),
     providerName: first(router.query.providerName),
     relayState: first(router.query.relayState),
-    ...(spInitiated && { acsUrl, audience: first(router.query.audience) || defaultAudience }),
+    ...(spInitiated && { acsUrl, audience }),
   }).filter((entry): entry is [string, string] => Boolean(entry[1]));
 
   const acsUrlInp = useRef<HTMLInputElement>(null);
@@ -104,7 +105,7 @@ export default function Login({
                         type='text'
                         required
                         autoComplete='off'
-                        defaultValue={defaultAudience}
+                        defaultValue={audience}
                         placeholder={defaultAudience}
                         className={inputClass}
                       />
