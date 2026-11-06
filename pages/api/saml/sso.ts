@@ -43,9 +43,11 @@ async function processSAMLRequest(req: NextApiRequest, res: NextApiResponse, isP
       throw new Error('Invalid signature');
     }
 
-    const params = new URLSearchParams({ id, audience, acsUrl, providerName });
-    if (relayState) {
-      params.set('relayState', relayState);
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries({ id, audience, acsUrl, providerName, relayState })) {
+      if (value) {
+        params.set(key, value);
+      }
     }
 
     const loginUrl = `${namespacePath(parsed.namespace)}/saml/login`;
