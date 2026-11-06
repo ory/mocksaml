@@ -93,6 +93,16 @@ describe('/api/saml/sso', () => {
     assert.equal(redirectParams(res).params.has('relayState'), false);
   });
 
+  it('omits providerName from the redirect when the request has none', async () => {
+    const unsigned = buildAuthnRequest({ signed: false });
+    const authn = encode(unsigned.id, unsigned.xml.replace(/ ProviderName="[^"]*"/, ''));
+    assert.doesNotMatch(authn.xml, /ProviderName=/);
+    const { req, res } = mockApi({ method: 'GET', query: { SAMLRequest: authn.redirect } });
+    await handler(req, res);
+
+    assert.equal(redirectParams(res).params.has('providerName'), false);
+  });
+
   it('rejects an invalid namespace', async () => {
     const authn = buildAuthnRequest();
     const { req, res } = mockApi({
