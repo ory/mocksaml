@@ -31,7 +31,7 @@
     "eslint-config-next": "16.4.6",
     "eslint-config-prettier": "10.1.8",
     "node-mocks-http": "1.18.1",
-    "postcss": "8.5.32",
+    "postcss": "8.5.33",
     "prettier": "3.10.1",
     "prettier-plugin-tailwindcss": "0.8.1",
     "release-it": "21.1.2",
